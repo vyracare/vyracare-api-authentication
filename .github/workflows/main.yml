@@ -1,0 +1,23 @@
+name: Publish PROD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Infra Repo Workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }} # Personal Access Token com permissão no repo de Infra
+          repository: vyracare/vyracare-infra-pipes-dot-net # repo de infra/CD
+          event-type: backend-updated
+          client-payload: |
+            {
+              "ref": "${{ github.ref }}",
+              "sha": "${{ github.sha }}",
+              "repo": "${{ github.repository }}"
+            }
