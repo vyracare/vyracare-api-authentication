@@ -12,7 +12,7 @@ jobs:
     uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/ci-auth-dot-net.yml@main
     with:
       branch-name: ${{ github.ref_name }}
-      project-path: "vyracare.auth.csproj"
+      project-path: "vyracare-api-authentication/vyracare.auth.csproj"
       output-dir: "./publish"
     secrets: inherit
       
