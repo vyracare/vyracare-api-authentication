@@ -1,23 +1,20 @@
-name: Publish PROD
+name: PUBLISH
 
 on:
-  push:
+  pull_request:
     branches:
-      - main
+      - develop
 
 jobs:
-  trigger:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Infra Repo Workflow
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }} # Personal Access Token com permissão no repo de Infra
-          repository: vyracare/vyracare-infra-pipes-dot-net # repo de infra/CD
-          event-type: backend-updated
-          client-payload: |
-            {
-              "ref": "${{ github.ref }}",
-              "sha": "${{ github.sha }}",
-              "repo": "${{ github.repository }}"
-            }
+  cd-auth-dot-net:
+    uses: vyracare/vyracare-infra-pipes-dotnet/.github/workflows/cd-auth-dot-net.yml@main
+    with:
+      branch-name: ${{ github.head_ref }}
+    secrets: inherit
+
+  cd-terraform:
+    needs: cd-auth-dot-net
+    uses: vyracare/vyracare-infra/.github/workflows/cd-terraform.yml@main
+    with:
+      branch-name: ${{ github.head_ref }}
+    secrets: inherit
