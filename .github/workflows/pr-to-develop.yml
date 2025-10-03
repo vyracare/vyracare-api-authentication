@@ -9,7 +9,7 @@ on:
 
 jobs:
   ci-auth-dot-net:
-    uses: vyracare/vyracare-infra-pipes-dotnet/.github/workflows/ci-auth-dot-net.yml@main
+    uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/ci-auth-dot-net.yml@main
     with:
       branch-name: ${{ github.ref_name }}
       project-path: "Vyracare.Auth/Vyracare.Auth.csproj"
