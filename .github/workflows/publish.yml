@@ -7,7 +7,7 @@ on:
 
 jobs:
   cd-auth-dot-net:
-    uses: vyracare/vyracare-infra-pipes-dotnet/.github/workflows/cd-auth-dot-net.yml@main
+    uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/cd-auth-dot-net.yml@main
     with:
       branch-name: ${{ github.head_ref }}
     secrets: inherit
