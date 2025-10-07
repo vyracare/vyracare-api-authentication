@@ -11,10 +11,3 @@ jobs:
     with:
       branch-name: ${{ github.head_ref }}
     secrets: inherit
-
-  cd-terraform:
-    needs: cd-auth-dot-net
-    uses: vyracare/vyracare-infra/.github/workflows/cd-terraform.yml@main
-    with:
-      branch-name: ${{ github.head_ref }}
-    secrets: inherit
