@@ -1,0 +1,15 @@
+name: PUBLISH
+
+on:
+  pull_request:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  cd-auth-dot-net:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/cd-auth-dot-net.yml@main
+    with:
+      branch-name: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+    secrets: inherit
