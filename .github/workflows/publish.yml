@@ -10,5 +10,5 @@ jobs:
     uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/cd-auth-dot-net.yml@main
     with:
       branch-name: ${{ github.head_ref }}
-      lambda-source-dir: Vyracare.Auth
+      lambda-source: Vyracare.Auth
     secrets: inherit
