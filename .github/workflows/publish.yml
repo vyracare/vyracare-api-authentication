@@ -1,7 +1,7 @@
 name: PUBLISH
 
 on:
-  pull_request:
+  push:
     branches:
       - develop
 
