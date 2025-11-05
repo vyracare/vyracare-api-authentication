@@ -11,3 +11,23 @@ jobs:
     with:
       branch-name: ${{ github.head_ref }}
     secrets: inherit
+
+  open-pr-main:
+    runs-on: ubuntu-latest
+    needs: cd-auth-dot-net
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Open Pull Request to main
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          source_branch: ${{ github.ref_name }}
+          destination_branch: main
+          pr_title: "PR automatic ${{ github.ref_name }} into main"
+          pr_body: |
+            PR automática criada pelo pipeline.
+            Branch de origem: `${{ github.ref_name }}`
+
+            name: Publish Backend
