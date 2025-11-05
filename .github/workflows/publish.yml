@@ -2,7 +2,8 @@ name: PUBLISH
 
 on:
   pull_request:
-    branches: [ develop ]
+    branches:
+      - develop
 
 jobs:
   cd-auth-dot-net:
