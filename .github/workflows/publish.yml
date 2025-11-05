@@ -1,10 +1,9 @@
 name: PUBLISH
-
 on:
-  pull_request:
+  push:
     branches:
       - develop
-
+      
 jobs:
   cd-auth-dot-net:
     uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/cd-auth-dot-net.yml@main
