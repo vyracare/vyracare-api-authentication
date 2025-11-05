@@ -1,3 +1,5 @@
+using Amazon.Lambda.AspNetCoreServer;
+using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
