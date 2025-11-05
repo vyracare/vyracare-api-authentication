@@ -10,6 +10,6 @@ jobs:
     with:
       branch-name: ${{ github.head_ref }}
       backend-repo: ${{ github.repository }}
-      project-path: Vyracare.Auth/Vyracare.Auth.csproj
+      project-path: Vyracare.Auth.csproj
       output-dir: backend-publish
     secrets: inherit
