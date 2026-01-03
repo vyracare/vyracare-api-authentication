@@ -10,3 +10,5 @@ Setup local:
 
 To publish:
   - dotnet publish -c Release -o ./publish
+
+--------------------------------------
