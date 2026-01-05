@@ -67,6 +67,11 @@ public class UserService
             new Claim(JwtRegisteredClaimNames.Email, user.Email)
         };
 
+        if (!string.IsNullOrWhiteSpace(user.FullName))
+        {
+            claims.Add(new Claim(JwtRegisteredClaimNames.Name, user.FullName));
+        }
+
         var keyBytes = Encoding.UTF8.GetBytes(key);
         var creds = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256);
 
