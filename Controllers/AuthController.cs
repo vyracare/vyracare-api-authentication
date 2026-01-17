@@ -26,8 +26,26 @@ public class AuthController : ControllerBase
         var exists = await _userService.GetByEmailAsync(req.Email);
         if (exists != null) return Conflict(new { message = "User already exists" });
 
-        var user = new UserModel { Email = req.Email, FullName = req.FullName };
-        user.PasswordHash = _userService.HashPassword(req.Password);
+        var user = new UserModel
+        {
+            Email = req.Email,
+            FullName = req.FullName,
+            Role = req.Role,
+            Department = req.Department,
+            Phone = req.Phone,
+            AccessLevel = req.AccessLevel,
+            Active = req.Active ?? true
+        };
+
+        if (!string.IsNullOrWhiteSpace(req.Password))
+        {
+            user.PasswordHash = _userService.HashPassword(req.Password);
+        }
+        else
+        {
+            user.PasswordHash = string.Empty;
+        }
+
         await _userService.CreateAsync(user);
         return CreatedAtAction(nameof(Register), new { id = user.Id }, new { message = "User created" });
     }
