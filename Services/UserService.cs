@@ -36,6 +36,18 @@ public class UserService
         return _users.InsertOneAsync(user);
     }
 
+    public async Task<bool> SetPasswordAsync(string email, string passwordHash)
+    {
+        var filter = Builders<UserModel>.Filter.Eq(u => u.Email, email)
+                     & Builders<UserModel>.Filter.Or(
+                         Builders<UserModel>.Filter.Eq(u => u.PasswordHash, string.Empty),
+                         Builders<UserModel>.Filter.Eq(u => u.PasswordHash, null)
+                     );
+        var update = Builders<UserModel>.Update.Set(u => u.PasswordHash, passwordHash);
+        var result = await _users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;
+    }
+
     public string HashPassword(string password)
     {
         using var sha = SHA256.Create();
