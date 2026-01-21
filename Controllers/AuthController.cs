@@ -50,6 +50,59 @@ public class AuthController : ControllerBase
         return CreatedAtAction(nameof(Register), new { id = user.Id }, new { message = "User created" });
     }
 
+    [HttpPost("first-access/check")]
+    public async Task<IActionResult> FirstAccessCheck([FromBody] FirstAccessCheckRequest req)
+    {
+        if (req == null || string.IsNullOrWhiteSpace(req.Email))
+        {
+            return BadRequest(new { message = "Email is required" });
+        }
+
+        var email = req.Email.Trim();
+        var user = await _userService.GetByEmailAsync(email);
+        if (user == null)
+        {
+            return Ok(new { exists = false, canSetPassword = false });
+        }
+
+        var hasPassword = !string.IsNullOrWhiteSpace(user.PasswordHash);
+        return Ok(new { exists = true, canSetPassword = !hasPassword });
+    }
+
+    [HttpPost("first-access/set-password")]
+    public async Task<IActionResult> FirstAccessSetPassword([FromBody] FirstAccessSetPasswordRequest req)
+    {
+        if (req == null || string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
+        {
+            return BadRequest(new { message = "Email and password are required" });
+        }
+
+        if (req.Password.Length < 6)
+        {
+            return BadRequest(new { message = "Password must be at least 6 characters" });
+        }
+
+        var email = req.Email.Trim();
+        var user = await _userService.GetByEmailAsync(email);
+        if (user == null)
+        {
+            return NotFound(new { message = "User not found" });
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.PasswordHash))
+        {
+            return Conflict(new { message = "Password already set" });
+        }
+
+        var updated = await _userService.SetPasswordAsync(email, _userService.HashPassword(req.Password));
+        if (!updated)
+        {
+            return Conflict(new { message = "Password already set" });
+        }
+
+        return Ok(new { message = "Password set" });
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {

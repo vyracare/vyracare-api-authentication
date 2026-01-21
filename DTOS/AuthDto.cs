@@ -11,4 +11,7 @@ public record RegisterRequest(
     bool? Active
 );
 
+public record FirstAccessCheckRequest(string Email);
+public record FirstAccessSetPasswordRequest(string Email, string Password);
+
 public record LoginRequest(string Email, string Password);
