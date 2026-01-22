@@ -13,6 +13,7 @@ jobs:
       backend-repo: ${{ github.repository }}
       project-path: Vyracare.Auth.csproj
       output-dir: backend-publish
+      recreate-infra: true
     secrets: inherit
 
   open-pr-main:
