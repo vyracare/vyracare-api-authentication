@@ -13,5 +13,6 @@ public record RegisterRequest(
 
 public record FirstAccessCheckRequest(string Email);
 public record FirstAccessSetPasswordRequest(string Email, string Password);
+public record ForgotPasswordRequest(string Email, string Password);
 
 public record LoginRequest(string Email, string Password);
