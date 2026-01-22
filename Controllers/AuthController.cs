@@ -103,6 +103,29 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Password set" });
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
+    {
+        if (req == null || string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
+        {
+            return BadRequest(new { message = "Email and password are required" });
+        }
+
+        if (req.Password.Length < 6)
+        {
+            return BadRequest(new { message = "Password must be at least 6 characters" });
+        }
+
+        var email = req.Email.Trim();
+        var updated = await _userService.UpdatePasswordAsync(email, _userService.HashPassword(req.Password));
+        if (!updated)
+        {
+            return NotFound(new { message = "User not found" });
+        }
+
+        return Ok(new { message = "Password updated" });
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {

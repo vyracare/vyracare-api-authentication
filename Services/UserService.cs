@@ -48,6 +48,14 @@ public class UserService
         return result.ModifiedCount > 0;
     }
 
+    public async Task<bool> UpdatePasswordAsync(string email, string passwordHash)
+    {
+        var filter = Builders<UserModel>.Filter.Eq(u => u.Email, email);
+        var update = Builders<UserModel>.Update.Set(u => u.PasswordHash, passwordHash);
+        var result = await _users.UpdateOneAsync(filter, update);
+        return result.MatchedCount > 0;
+    }
+
     public string HashPassword(string password)
     {
         using var sha = SHA256.Create();
