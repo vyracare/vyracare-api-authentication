@@ -13,7 +13,7 @@ jobs:
       backend-repo: ${{ github.repository }}
       project-path: Vyracare.Auth.csproj
       output-dir: backend-publish
-      recreate-infra: true
+      recreate-infra: false
       api-id: ${{ vars.AUTH_API_ID }}
       authorizer-id: ${{ vars.AUTH_AUTHORIZER_ID }}
       route-id-auth-login: ${{ vars.AUTH_ROUTE_ID_AUTH_LOGIN }}
