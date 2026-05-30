@@ -3,6 +3,9 @@ using Vyracare.Auth.Common.Results;
 
 namespace Vyracare.Auth.Common.Http;
 
+/// <summary>
+/// Centraliza extens?es reutiliz?veis usadas pela aplica??o.
+/// </summary>
 public static class ControllerBaseExtensions
 {
     public static IActionResult ToActionResult<T>(

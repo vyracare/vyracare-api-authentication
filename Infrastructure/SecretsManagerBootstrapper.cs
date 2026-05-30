@@ -5,8 +5,14 @@ using System.Text.Json;
 
 namespace Vyracare.Auth.Infrastructure;
 
+/// <summary>
+/// Executa a prepara??o inicial da configura??o da aplica??o antes do bootstrap completo.
+/// </summary>
 public static class SecretsManagerBootstrapper
 {
+/// <summary>
+/// Aplica os valores externos necess?rios ? configura??o da aplica??o.
+/// </summary>
     public static async Task ApplyAsync(ConfigurationManager configuration)
     {
         var overrides = new Dictionary<string, string>();

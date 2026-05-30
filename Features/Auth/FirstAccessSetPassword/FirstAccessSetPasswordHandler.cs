@@ -4,17 +4,26 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 
 namespace Vyracare.Auth.Features.Auth.FirstAccessSetPassword;
 
+/// <summary>
+/// Implementa a regra de neg?cio do caso de uso representado por esta pasta.
+/// </summary>
 public sealed class FirstAccessSetPasswordHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
 
+/// <summary>
+/// Inicializa uma nova inst?ncia de FirstAccessSetPasswordHandler.
+/// </summary>
     public FirstAccessSetPasswordHandler(IUserRepository userRepository, IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
     }
 
+/// <summary>
+/// Executa o caso de uso e devolve o resultado padronizado da opera??o.
+/// </summary>
     public async Task<UseCaseResult<MessageResponse>> HandleAsync(FirstAccessSetPasswordRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))

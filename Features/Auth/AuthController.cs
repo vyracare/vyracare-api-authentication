@@ -11,10 +11,16 @@ namespace Vyracare.Auth.Features.Auth;
 
 [ApiController]
 [Route("api/auth")]
+/// <summary>
+/// Exp?e os endpoints HTTP desta feature e delega o processamento para os handlers da aplica??o.
+/// </summary>
 public sealed class AuthController : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
+/// <summary>
+/// Executa a responsabilidade associada a r eg is te r.
+/// </summary>
     public async Task<IActionResult> Register(
         [FromBody] RegisterRequest request,
         [FromServices] RegisterHandler handler)
@@ -25,6 +31,9 @@ public sealed class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("first-access/check")]
+/// <summary>
+/// Executa a responsabilidade associada a c he ck fi rs ta cc es s.
+/// </summary>
     public async Task<IActionResult> CheckFirstAccess(
         [FromBody] FirstAccessCheckRequest request,
         [FromServices] FirstAccessCheckHandler handler)
@@ -35,6 +44,9 @@ public sealed class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("first-access/set-password")]
+/// <summary>
+/// Executa a responsabilidade associada a s et fi rs ta cc es sp as sw or d.
+/// </summary>
     public async Task<IActionResult> SetFirstAccessPassword(
         [FromBody] FirstAccessSetPasswordRequest request,
         [FromServices] FirstAccessSetPasswordHandler handler)
@@ -45,6 +57,9 @@ public sealed class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("forgot-password")]
+/// <summary>
+/// Executa a responsabilidade associada a f or go tp as sw or d.
+/// </summary>
     public async Task<IActionResult> ForgotPassword(
         [FromBody] ForgotPasswordRequest request,
         [FromServices] ForgotPasswordHandler handler)
@@ -55,6 +70,9 @@ public sealed class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
+/// <summary>
+/// Executa a responsabilidade associada a l og in.
+/// </summary>
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request,
         [FromServices] LoginHandler handler)

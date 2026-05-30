@@ -14,8 +14,14 @@ using Vyracare.Auth.Infrastructure.Time;
 
 namespace Vyracare.Auth.Infrastructure.DependencyInjection;
 
+/// <summary>
+/// Centraliza extens?es reutiliz?veis usadas pela aplica??o.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+/// <summary>
+/// Registra os handlers, portas e servi?os centrais da aplica??o no container de depend?ncias.
+/// </summary>
     public static IServiceCollection AddAuthCore(this IServiceCollection services)
     {
         services.AddSingleton<IClock, SystemClock>();
@@ -33,6 +39,9 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+/// <summary>
+/// Registra os servi?os necess?rios para conectar a aplica??o ao MongoDB.
+/// </summary>
     public static IServiceCollection AddMongo(this IServiceCollection services)
     {
         services.AddSingleton<IMongoClient>(sp =>

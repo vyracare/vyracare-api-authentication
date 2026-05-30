@@ -248,7 +248,7 @@ Swagger:
 
 ---
 
-## Resumo para um desenvolvedor junior
+## Resumo para desenvolvedores
 
 Se voce lembrar de uma regra, lembre desta:
 

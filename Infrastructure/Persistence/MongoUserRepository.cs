@@ -5,21 +5,33 @@ using Vyracare.Auth.Infrastructure.Persistence.Documents;
 
 namespace Vyracare.Auth.Infrastructure.Persistence;
 
+/// <summary>
+/// Implementa a integra??o com a persist?ncia ou com uma depend?ncia externa da aplica??o.
+/// </summary>
 public sealed class MongoUserRepository : IUserRepository
 {
     private readonly IMongoCollection<UserDocument> _collection;
 
+/// <summary>
+/// Inicializa uma nova inst?ncia de MongoUserRepository.
+/// </summary>
     public MongoUserRepository(IMongoDatabase database)
     {
         _collection = database.GetCollection<UserDocument>("users");
     }
 
+/// <summary>
+/// Recupera um colaborador ou usu?rio a partir do e-mail informado.
+/// </summary>
     public async Task<User?> GetByEmailAsync(string email)
     {
         var document = await _collection.Find(item => item.Email == email).FirstOrDefaultAsync();
         return document is null ? null : MapToDomain(document);
     }
 
+/// <summary>
+/// Persiste um novo registro e devolve a entidade resultante da opera??o.
+/// </summary>
     public async Task<User> AddAsync(User user)
     {
         var document = MapToDocument(user);
@@ -28,6 +40,9 @@ public sealed class MongoUserRepository : IUserRepository
         return user;
     }
 
+/// <summary>
+/// Define a senha inicial do usu?rio quando ainda n?o existe hash cadastrado.
+/// </summary>
     public async Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash)
     {
         var filter = Builders<UserDocument>.Filter.Eq(item => item.Email, email)
@@ -41,6 +56,9 @@ public sealed class MongoUserRepository : IUserRepository
         return result.ModifiedCount > 0;
     }
 
+/// <summary>
+/// Atualiza a senha persistida para o usu?rio informado.
+/// </summary>
     public async Task<bool> UpdatePasswordAsync(string email, string passwordHash)
     {
         var filter = Builders<UserDocument>.Filter.Eq(item => item.Email, email);

@@ -3,15 +3,24 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 
 namespace Vyracare.Auth.Features.Auth.FirstAccessCheck;
 
+/// <summary>
+/// Implementa a regra de neg?cio do caso de uso representado por esta pasta.
+/// </summary>
 public sealed class FirstAccessCheckHandler
 {
     private readonly IUserRepository _userRepository;
 
+/// <summary>
+/// Inicializa uma nova inst?ncia de FirstAccessCheckHandler.
+/// </summary>
     public FirstAccessCheckHandler(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
+/// <summary>
+/// Executa o caso de uso e devolve o resultado padronizado da opera??o.
+/// </summary>
     public async Task<UseCaseResult<FirstAccessCheckResponse>> HandleAsync(FirstAccessCheckRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))

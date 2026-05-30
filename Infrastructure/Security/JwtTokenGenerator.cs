@@ -9,15 +9,24 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 
 namespace Vyracare.Auth.Infrastructure.Security;
 
+/// <summary>
+/// Representa uma parte da arquitetura desta API.
+/// </summary>
 public sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtOptions _options;
 
+/// <summary>
+/// Inicializa uma nova inst?ncia de JwtTokenGenerator.
+/// </summary>
     public JwtTokenGenerator(IOptions<JwtOptions> options)
     {
         _options = options.Value;
     }
 
+/// <summary>
+/// Gera um valor derivado a partir do estado informado, como um token de autentica??o.
+/// </summary>
     public string Generate(User user)
     {
         if (string.IsNullOrWhiteSpace(_options.Key))
