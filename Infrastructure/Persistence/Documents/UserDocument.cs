@@ -1,16 +1,16 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Vyracare.Auth.Models;
+namespace Vyracare.Auth.Infrastructure.Persistence.Documents;
 
-public class UserModel
+public sealed class UserDocument
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
     [BsonElement("email")]
-    public string Email { get; set; } = null!;
+    public string Email { get; set; } = string.Empty;
 
     [BsonElement("fullName")]
     public string? FullName { get; set; }
@@ -28,11 +28,11 @@ public class UserModel
     public string? AccessLevel { get; set; }
 
     [BsonElement("active")]
-    public bool Active { get; set; } = true;
+    public bool Active { get; set; }
 
     [BsonElement("passwordHash")]
     public string PasswordHash { get; set; } = string.Empty;
 
     [BsonElement("createdAt")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 }
