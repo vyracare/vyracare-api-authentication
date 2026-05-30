@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Text;
+using Vyracare.Auth.Infrastructure;
 using Vyracare.Auth.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+await SecretsManagerBootstrapper.ApplyAsync(builder.Configuration);
 var configuration = builder.Configuration;
 
 // MongoDB client registration (connection string in configuration or env var MONGO_URI)
@@ -15,7 +17,7 @@ builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(mongoUri));
 builder.Services.AddScoped(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(configuration["Mongo:Database"] ?? "vyracare"));
 
 // JWT settings (key should be kept secret in production)
-var jwtKey = configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY") ?? "replace_this_with_a_long_random_secret_change_in_prod";
+var jwtKey = configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new InvalidOperationException("Jwt:Key nao configurado.");
 var jwtIssuer = configuration["Jwt:Issuer"] ?? "vyracare-auth";
 var jwtAudience = configuration["Jwt:Audience"] ?? "vyracare-client";
 
