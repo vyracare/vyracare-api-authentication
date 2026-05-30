@@ -4,11 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>vyracare-api-authentication-local</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
 
     <!-- Pacotes JWT -->
+    <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.3.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
 
