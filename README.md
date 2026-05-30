@@ -1,63 +1,230 @@
 # vyracare-api-authentication
 
-API .NET 8 responsavel por registro, login, primeiro acesso e recuperacao de senha da plataforma Vyracare.
+## Visao geral
 
-## Estrutura
+Esta API concentra os fluxos de autenticacao da plataforma Vyracare:
 
-O projeto foi reorganizado em um modelo pragmatico de `vertical slice` com `ports and adapters`.
+- registro de usuario;
+- login;
+- verificacao de primeiro acesso;
+- definicao de senha no primeiro acesso;
+- recuperacao de senha.
 
-- `Features/Auth`
-  Casos de uso do dominio de autenticacao. Cada fluxo fica isolado em sua propria pasta (`Register`, `Login`, `FirstAccessCheck`, `FirstAccessSetPassword`, `ForgotPassword`).
-- `Features/Auth/Shared`
-  Entidade de dominio `User` e contratos de borda (`IUserRepository`, `IPasswordHasher`, `IJwtTokenGenerator`).
-- `Common`
-  Tipos compartilhados de configuracao, mapeamento HTTP, resultados de caso de uso e controle de tempo.
-- `Infrastructure/Persistence`
-  Adapter de MongoDB com documento `UserDocument` e repositorio `MongoUserRepository`.
-- `Infrastructure/Security`
-  Implementacoes de hash e emissao de JWT.
-- `Infrastructure/DependencyInjection`
-  Composicao do container e configuracao do acesso ao Mongo.
+Ela foi organizada em um modelo de `vertical slice`, o que significa que cada caso de uso fica agrupado por feature, em vez de espalhado em pastas globais de controller, service e model.
 
-## Fluxo da request
+---
 
-1. O controller HTTP em `Features/Auth/AuthController.cs` recebe a requisicao.
-2. O handler da feature executa validacoes e regras do caso de uso.
-3. Os handlers dependem apenas de portas do dominio.
-4. Os adapters de infraestrutura resolvem persistencia MongoDB e emissao de token JWT.
+## Como ler este projeto pela primeira vez
+
+Se voce esta chegando agora, leia nesta ordem:
+
+1. [Program.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Program.cs)
+   Aqui voce entende como a API sobe, registra dependencias, configura JWT, CORS, Swagger e Lambda.
+
+2. [Features/Auth/AuthController.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Features/Auth/AuthController.cs)
+   Aqui voce ve quais endpoints existem e para qual handler cada rota delega.
+
+3. Uma feature completa, por exemplo:
+   - [RegisterRequest.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Features/Auth/Register/RegisterRequest.cs)
+   - [RegisterHandler.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Features/Auth/Register/RegisterHandler.cs)
+   - [RegisterResponse.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Features/Auth/Register/RegisterResponse.cs)
+
+4. As portas do dominio:
+   - [IUserRepository.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Features/Auth/Shared/Ports/IUserRepository.cs)
+   - [IPasswordHasher.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Features/Auth/Shared/Ports/IPasswordHasher.cs)
+   - [IJwtTokenGenerator.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Features/Auth/Shared/Ports/IJwtTokenGenerator.cs)
+
+5. Os adapters de infraestrutura:
+   - [MongoUserRepository.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/Persistence/MongoUserRepository.cs)
+   - [Sha256PasswordHasher.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/Security/Sha256PasswordHasher.cs)
+   - [JwtTokenGenerator.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/Security/JwtTokenGenerator.cs)
+
+6. Os testes:
+   - [LoginHandlerTests.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Vyracare.Auth.Tests/Auth/Login/LoginHandlerTests.cs)
+   - [RegisterHandlerTests.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Vyracare.Auth.Tests/Auth/Register/RegisterHandlerTests.cs)
+
+---
+
+## Estrutura de pastas
+
+### `Common`
+
+Aqui ficam componentes que podem ser usados por varias features:
+
+- `Configuration`
+  Classes tipadas que leem configuracoes do `appsettings.json` e das variaveis de ambiente.
+- `Http`
+  Extensoes para transformar `UseCaseResult` em resposta HTTP.
+- `Results`
+  Contrato padrao de sucesso e erro dos handlers.
+- `Time`
+  Abstracao do tempo para facilitar testes.
+
+### `Features/Auth`
+
+Aqui ficam os casos de uso do dominio de autenticacao.
+
+Cada pasta representa um fluxo:
+
+- `Register`
+- `Login`
+- `FirstAccessCheck`
+- `FirstAccessSetPassword`
+- `ForgotPassword`
+
+Em cada fluxo, a ideia e sempre a mesma:
+
+1. Um `Request` define a entrada.
+2. Um `Handler` implementa a regra de negocio.
+3. Quando necessario, um `Response` define a saida.
+
+### `Features/Auth/Shared`
+
+Aqui ficam as pecas compartilhadas da feature:
+
+- entidade de dominio `User`;
+- interfaces que representam as portas de saida da aplicacao;
+- respostas simples, como `MessageResponse`.
+
+### `Infrastructure`
+
+Aqui ficam os detalhes tecnicos que a regra de negocio nao deve conhecer diretamente:
+
+- acesso ao MongoDB;
+- geracao de token JWT;
+- hash de senha;
+- leitura de secrets da AWS;
+- registro de dependencias no container.
+
+### `Vyracare.Auth.Tests`
+
+Projeto de testes unitarios.
+
+Ele valida os handlers e componentes tecnicos isoladamente, sem depender de API Gateway, Lambda ou banco real.
+
+---
+
+## Fluxo passo a passo de uma requisicao
+
+Vamos usar o login como exemplo.
+
+1. O cliente faz `POST /api/auth/login`.
+2. O controller recebe o body e cria um `LoginRequest`.
+3. O controller resolve o `LoginHandler` via DI.
+4. O handler consulta `IUserRepository`.
+5. O handler valida a senha usando `IPasswordHasher`.
+6. Se estiver tudo certo, usa `IJwtTokenGenerator`.
+7. O handler devolve um `UseCaseResult<LoginResponse>`.
+8. O controller transforma esse resultado em resposta HTTP.
+
+Essa separacao existe para que:
+
+- a regra de negocio possa ser testada sem banco e sem HTTP;
+- a infraestrutura possa mudar sem quebrar os handlers;
+- o codigo fique mais previsivel para evolucao.
+
+---
+
+## Endpoints
+
+Base path:
+
+- `/api/auth`
+
+Rotas:
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/first-access/check`
+- `POST /api/auth/first-access/set-password`
+- `POST /api/auth/forgot-password`
+
+Observacao:
+
+- Essas rotas estao com `AllowAnonymous` porque sao a porta de entrada da autenticacao.
+- O restante da API continua protegido por JWT.
+
+---
 
 ## Seguranca e configuracao
 
-- JWT obrigatorio por default na aplicacao; apenas os endpoints de autenticacao estao marcados com `AllowAnonymous`.
-- Secrets sensiveis nao ficam versionados.
-- Em runtime, a API tenta carregar:
-  - `vyracare/shared/mongo`
-  - `vyracare/shared/jwt-signing`
-- Tambem existem fallbacks para `MONGO_URI`, `JWT_KEY`, `JWT_ISSUER`, `JWT_AUDIENCE` e `CORS_ALLOWED_ORIGINS`.
+### JWT
 
-Arquivos centrais:
-- [Program.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Program.cs)
-- [SecretsManagerBootstrapper.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/SecretsManagerBootstrapper.cs)
-- [ServiceCollectionExtensions.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs)
+O JWT e configurado no [Program.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Program.cs) usando as opcoes de:
+
+- issuer;
+- audience;
+- key.
+
+### Secrets
+
+Os valores sensiveis nao ficam versionados no repositorio.
+
+Em runtime, a API tenta ler:
+
+- `vyracare/shared/mongo`
+- `vyracare/shared/jwt-signing`
+
+Isso acontece em [SecretsManagerBootstrapper.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/SecretsManagerBootstrapper.cs).
+
+### Fallbacks
+
+Se o secret nao estiver disponivel, ainda existem fallbacks por variavel de ambiente:
+
+- `MONGO_URI`
+- `JWT_KEY`
+- `JWT_ISSUER`
+- `JWT_AUDIENCE`
+- `CORS_ALLOWED_ORIGINS`
+
+---
 
 ## Testes unitarios
 
-Existe uma camada dedicada em:
+### O que esta coberto hoje
 
-- [Vyracare.Auth.Tests.csproj](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Vyracare.Auth.Tests/Vyracare.Auth.Tests.csproj)
+- login com usuario inexistente;
+- login com credenciais validas;
+- registro com conflito;
+- registro com sucesso;
+- hash e validacao de senha.
 
-Cobertura inicial incluida:
-- `LoginHandler`
-- `RegisterHandler`
-- `Sha256PasswordHasher`
-
-Comando esperado:
+### Como rodar
 
 ```bash
-dotnet test Vyracare.Auth.Tests/Vyracare.Auth.Tests.csproj
+dotnet restore
+dotnet build --no-restore
+dotnet test Vyracare.Auth.Tests/Vyracare.Auth.Tests.csproj --no-restore
 ```
 
-## Execucao local
+### Como pensar em novos testes
+
+Quando voce criar um novo handler:
+
+1. crie um arquivo de teste espelhando a pasta da feature;
+2. use fakes das portas do dominio;
+3. teste sucesso e falha;
+4. evite depender de MongoDB real.
+
+---
+
+## Como adicionar um novo caso de uso
+
+Exemplo: `ResetPassword`.
+
+Passo a passo:
+
+1. Criar a pasta `Features/Auth/ResetPassword`.
+2. Criar o `ResetPasswordRequest`.
+3. Criar o `ResetPasswordHandler`.
+4. Reutilizar as portas existentes ou criar uma nova se necessario.
+5. Expor a rota no `AuthController`.
+6. Registrar o handler em `ServiceCollectionExtensions`.
+7. Criar os testes em `Vyracare.Auth.Tests`.
+
+---
+
+## Como executar localmente
 
 ```bash
 dotnet restore
@@ -65,15 +232,28 @@ dotnet build
 dotnet run
 ```
 
-Para desenvolvimento local:
-- configure `dotnet user-secrets`
-- ou use as env vars de fallback
-
-## Deploy
-
-A API publica em AWS Lambda + HTTP API e expoe Swagger em:
+Swagger:
 
 - `/swagger/index.html`
-- `/swagger/v1/swagger.json`
 
-O deploy depende da esteira reutilizavel do repositório `vyracare-infra-pipes-dot-net`.
+---
+
+## Como a API sobe em producao
+
+1. O projeto e publicado via pipeline .NET.
+2. A aplicacao sobe em AWS Lambda.
+3. O API Gateway HTTP expõe as rotas.
+4. O Swagger tambem fica publicado.
+5. Os secrets sao lidos no startup.
+
+---
+
+## Resumo para um desenvolvedor junior
+
+Se voce lembrar de uma regra, lembre desta:
+
+- controller recebe a request;
+- handler executa a regra;
+- porta define o contrato;
+- infraestrutura implementa o contrato;
+- testes validam o handler sem depender do mundo externo.
