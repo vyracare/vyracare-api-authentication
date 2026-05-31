@@ -1,26 +1,26 @@
 namespace Vyracare.Auth.Common.Configuration;
 
 /// <summary>
-/// Representa uma configura??o tipada lida do appsettings ou das vari?veis de ambiente.
+/// Representa as opções de configuração carregadas da aplicação.
 /// </summary>
 public sealed class JwtOptions
 {
     public const string SectionName = "Jwt";
 
 /// <summary>
-/// Obt?m ou define k ey.
+/// Obtém ou define a chave usada no processo de autenticação ou assinatura.
 /// </summary>
     public string Key { get; set; } = string.Empty;
 /// <summary>
-/// Obt?m ou define i ss ue r.
+/// Obtém ou define o emissor considerado válido para o token.
 /// </summary>
     public string Issuer { get; set; } = "vyracare-auth";
 /// <summary>
-/// Obt?m ou define a ud ie nc e.
+/// Obtém ou define o público considerado válido para o token.
 /// </summary>
     public string Audience { get; set; } = "vyracare-client";
 /// <summary>
-/// Obt?m ou define e xp ir ym in ut es.
+/// Obtém ou define a quantidade de minutos de validade do token.
 /// </summary>
     public int ExpiryMinutes { get; set; } = 60;
 }

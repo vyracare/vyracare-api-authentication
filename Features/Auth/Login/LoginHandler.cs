@@ -4,7 +4,7 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Features.Auth.Login;
 
 /// <summary>
-/// Implementa a regra de neg?cio do caso de uso representado por esta pasta.
+/// Implementa o caso de uso correspondente a esta feature.
 /// </summary>
 public sealed class LoginHandler
 {
@@ -13,7 +13,7 @@ public sealed class LoginHandler
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
 /// <summary>
-/// Inicializa uma nova inst?ncia de LoginHandler.
+/// Inicializa uma nova instância de LoginHandler.
 /// </summary>
     public LoginHandler(
         IUserRepository userRepository,
@@ -26,7 +26,7 @@ public sealed class LoginHandler
     }
 
 /// <summary>
-/// Executa o caso de uso e devolve o resultado padronizado da opera??o.
+/// Executa o caso de uso e devolve o resultado padronizado da operação.
 /// </summary>
     public async Task<UseCaseResult<LoginResponse>> HandleAsync(LoginRequest request)
     {

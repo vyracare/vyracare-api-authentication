@@ -6,13 +6,13 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Tests.Auth.Login;
 
 /// <summary>
-/// Agrupa os cen?rios de teste unit?rio relacionados a este componente.
+/// Representa o componente LoginHandlerTests da aplicação.
 /// </summary>
 public sealed class LoginHandlerTests
 {
     [Fact]
 /// <summary>
-/// Executa a responsabilidade associada a d ev e r et or na r u na ut ho ri ze d q ua nd o u su ar io n ao e xi st ir.
+/// Executa a responsabilidade do método D ev e_r et or na r_u na ut ho ri ze d_q ua nd o_u su ar io_n ao_e xi st ir.
 /// </summary>
     public async Task Deve_retornar_unauthorized_quando_usuario_nao_existir()
     {
@@ -29,7 +29,7 @@ public sealed class LoginHandlerTests
 
     [Fact]
 /// <summary>
-/// Executa a responsabilidade associada a d ev e r et or na r t ok en q ua nd o c re de nc ia is f or e v al id as.
+/// Executa a responsabilidade do método D ev e_r et or na r_t ok en_q ua nd o_c re de nc ia is_f or e_v al id as.
 /// </summary>
     public async Task Deve_retornar_token_quando_credenciais_fore_validas()
     {
@@ -57,7 +57,7 @@ public sealed class LoginHandlerTests
         private readonly List<User> _users = [];
 
 /// <summary>
-/// Persiste um novo registro e devolve a entidade resultante da opera??o.
+/// Persiste um novo registro e devolve a entidade resultante da operação.
 /// </summary>
         public Task<User> AddAsync(User user)
         {
@@ -67,7 +67,7 @@ public sealed class LoginHandlerTests
         }
 
 /// <summary>
-/// Recupera um colaborador ou usu?rio a partir do e-mail informado.
+/// Recupera um registro específico a partir do e-mail informado.
 /// </summary>
         public Task<User?> GetByEmailAsync(string email)
         {
@@ -75,12 +75,12 @@ public sealed class LoginHandlerTests
         }
 
 /// <summary>
-/// Define a senha inicial do usu?rio quando ainda n?o existe hash cadastrado.
+/// Executa a responsabilidade do método S et Pa ss wo rd If Em pt yA sy nc.
 /// </summary>
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);
 
 /// <summary>
-/// Atualiza a senha persistida para o usu?rio informado.
+/// Atualiza a senha persistida para o usuário informado.
 /// </summary>
         public Task<bool> UpdatePasswordAsync(string email, string passwordHash) => Task.FromResult(false);
     }
@@ -88,12 +88,12 @@ public sealed class LoginHandlerTests
     private sealed class FakePasswordHasher : IPasswordHasher
     {
 /// <summary>
-/// Calcula o hash seguro de um valor sens?vel.
+/// Calcula o hash seguro do valor informado.
 /// </summary>
         public string Hash(string password) => "hash-123";
 
 /// <summary>
-/// Valida se o valor informado corresponde ao hash persistido.
+/// Verifica se o valor informado corresponde ao hash armazenado.
 /// </summary>
         public bool Verify(string password, string storedHash) => password == "123456" && storedHash == "hash-123";
     }
@@ -101,7 +101,7 @@ public sealed class LoginHandlerTests
     private sealed class FakeJwtTokenGenerator : IJwtTokenGenerator
     {
 /// <summary>
-/// Gera um valor derivado a partir do estado informado, como um token de autentica??o.
+/// Gera um token a partir das informações do usuário informado.
 /// </summary>
         public string Generate(User user) => "token-fake";
     }

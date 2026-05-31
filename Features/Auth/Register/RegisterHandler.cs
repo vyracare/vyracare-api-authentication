@@ -5,7 +5,7 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Features.Auth.Register;
 
 /// <summary>
-/// Implementa a regra de neg?cio do caso de uso representado por esta pasta.
+/// Implementa o caso de uso correspondente a esta feature.
 /// </summary>
 public sealed class RegisterHandler
 {
@@ -14,7 +14,7 @@ public sealed class RegisterHandler
     private readonly IClock _clock;
 
 /// <summary>
-/// Inicializa uma nova inst?ncia de RegisterHandler.
+/// Inicializa uma nova instância de RegisterHandler.
 /// </summary>
     public RegisterHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IClock clock)
     {
@@ -24,7 +24,7 @@ public sealed class RegisterHandler
     }
 
 /// <summary>
-/// Executa o caso de uso e devolve o resultado padronizado da opera??o.
+/// Executa o caso de uso e devolve o resultado padronizado da operação.
 /// </summary>
     public async Task<UseCaseResult<RegisterResponse>> HandleAsync(RegisterRequest request)
     {

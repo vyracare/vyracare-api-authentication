@@ -5,12 +5,12 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Infrastructure.Security;
 
 /// <summary>
-/// Representa uma parte da arquitetura desta API.
+/// Implementa a geração e a verificação de hashes usados pela aplicação.
 /// </summary>
 public sealed class Sha256PasswordHasher : IPasswordHasher
 {
 /// <summary>
-/// Calcula o hash seguro de um valor sens?vel.
+/// Calcula o hash seguro do valor informado.
 /// </summary>
     public string Hash(string password)
     {
@@ -20,7 +20,7 @@ public sealed class Sha256PasswordHasher : IPasswordHasher
     }
 
 /// <summary>
-/// Valida se o valor informado corresponde ao hash persistido.
+/// Verifica se o valor informado corresponde ao hash armazenado.
 /// </summary>
     public bool Verify(string password, string storedHash)
     {

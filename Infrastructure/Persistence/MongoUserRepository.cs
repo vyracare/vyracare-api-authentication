@@ -6,14 +6,14 @@ using Vyracare.Auth.Infrastructure.Persistence.Documents;
 namespace Vyracare.Auth.Infrastructure.Persistence;
 
 /// <summary>
-/// Implementa a integra??o com a persist?ncia ou com uma depend?ncia externa da aplica??o.
+/// Implementa o acesso aos dados da feature usando a infraestrutura configurada.
 /// </summary>
 public sealed class MongoUserRepository : IUserRepository
 {
     private readonly IMongoCollection<UserDocument> _collection;
 
 /// <summary>
-/// Inicializa uma nova inst?ncia de MongoUserRepository.
+/// Inicializa uma nova instância de MongoUserRepository.
 /// </summary>
     public MongoUserRepository(IMongoDatabase database)
     {
@@ -21,7 +21,7 @@ public sealed class MongoUserRepository : IUserRepository
     }
 
 /// <summary>
-/// Recupera um colaborador ou usu?rio a partir do e-mail informado.
+/// Recupera um registro específico a partir do e-mail informado.
 /// </summary>
     public async Task<User?> GetByEmailAsync(string email)
     {
@@ -30,7 +30,7 @@ public sealed class MongoUserRepository : IUserRepository
     }
 
 /// <summary>
-/// Persiste um novo registro e devolve a entidade resultante da opera??o.
+/// Persiste um novo registro e devolve a entidade resultante da operação.
 /// </summary>
     public async Task<User> AddAsync(User user)
     {
@@ -41,7 +41,7 @@ public sealed class MongoUserRepository : IUserRepository
     }
 
 /// <summary>
-/// Define a senha inicial do usu?rio quando ainda n?o existe hash cadastrado.
+/// Executa a responsabilidade do método S et Pa ss wo rd If Em pt yA sy nc.
 /// </summary>
     public async Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash)
     {
@@ -57,7 +57,7 @@ public sealed class MongoUserRepository : IUserRepository
     }
 
 /// <summary>
-/// Atualiza a senha persistida para o usu?rio informado.
+/// Atualiza a senha persistida para o usuário informado.
 /// </summary>
     public async Task<bool> UpdatePasswordAsync(string email, string passwordHash)
     {

@@ -3,7 +3,7 @@ using Vyracare.Auth.Features.Auth.Shared.Domain;
 namespace Vyracare.Auth.Features.Auth.Shared.Ports;
 
 /// <summary>
-/// Define um contrato usado para desacoplar a regra de neg?cio dos detalhes de implementa??o.
+/// Define o contrato responsável por gerar tokens de autenticação.
 /// </summary>
 public interface IJwtTokenGenerator
 {

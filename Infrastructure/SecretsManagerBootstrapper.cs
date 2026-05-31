@@ -6,12 +6,12 @@ using System.Text.Json;
 namespace Vyracare.Auth.Infrastructure;
 
 /// <summary>
-/// Executa a prepara??o inicial da configura??o da aplica??o antes do bootstrap completo.
+/// Aplica os valores externos e segredos necessários durante a inicialização da aplicação.
 /// </summary>
 public static class SecretsManagerBootstrapper
 {
 /// <summary>
-/// Aplica os valores externos necess?rios ? configura??o da aplica??o.
+/// Aplica os valores externos necessários antes da inicialização completa da aplicação.
 /// </summary>
     public static async Task ApplyAsync(ConfigurationManager configuration)
     {

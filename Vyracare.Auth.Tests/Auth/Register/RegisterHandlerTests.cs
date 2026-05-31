@@ -7,13 +7,13 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Tests.Auth.Register;
 
 /// <summary>
-/// Agrupa os cen?rios de teste unit?rio relacionados a este componente.
+/// Representa o componente RegisterHandlerTests da aplicação.
 /// </summary>
 public sealed class RegisterHandlerTests
 {
     [Fact]
 /// <summary>
-/// Executa a responsabilidade associada a d ev e r et or na r c on fl ic t q ua nd o e ma il j a e xi st ir.
+/// Executa a responsabilidade do método D ev e_r et or na r_c on fl ic t_q ua nd o_e ma il_j a_e xi st ir.
 /// </summary>
     public async Task Deve_retornar_conflict_quando_email_ja_existir()
     {
@@ -30,7 +30,7 @@ public sealed class RegisterHandlerTests
 
     [Fact]
 /// <summary>
-/// Executa a responsabilidade associada a d ev e c ri ar u su ar io q ua nd o e ma il n ao e xi st ir.
+/// Executa a responsabilidade do método D ev e_c ri ar_u su ar io_q ua nd o_e ma il_n ao_e xi st ir.
 /// </summary>
     public async Task Deve_criar_usuario_quando_email_nao_existir()
     {
@@ -47,12 +47,12 @@ public sealed class RegisterHandlerTests
     private sealed class FakeUserRepository : IUserRepository
     {
 /// <summary>
-/// Obt?m ou define u se rs.
+/// Obtém ou define o valor da propriedade U se rs.
 /// </summary>
         public List<User> Users { get; } = [];
 
 /// <summary>
-/// Persiste um novo registro e devolve a entidade resultante da opera??o.
+/// Persiste um novo registro e devolve a entidade resultante da operação.
 /// </summary>
         public Task<User> AddAsync(User user)
         {
@@ -62,7 +62,7 @@ public sealed class RegisterHandlerTests
         }
 
 /// <summary>
-/// Recupera um colaborador ou usu?rio a partir do e-mail informado.
+/// Recupera um registro específico a partir do e-mail informado.
 /// </summary>
         public Task<User?> GetByEmailAsync(string email)
         {
@@ -70,12 +70,12 @@ public sealed class RegisterHandlerTests
         }
 
 /// <summary>
-/// Define a senha inicial do usu?rio quando ainda n?o existe hash cadastrado.
+/// Executa a responsabilidade do método S et Pa ss wo rd If Em pt yA sy nc.
 /// </summary>
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);
 
 /// <summary>
-/// Atualiza a senha persistida para o usu?rio informado.
+/// Atualiza a senha persistida para o usuário informado.
 /// </summary>
         public Task<bool> UpdatePasswordAsync(string email, string passwordHash) => Task.FromResult(false);
     }
@@ -83,12 +83,12 @@ public sealed class RegisterHandlerTests
     private sealed class FakePasswordHasher : IPasswordHasher
     {
 /// <summary>
-/// Calcula o hash seguro de um valor sens?vel.
+/// Calcula o hash seguro do valor informado.
 /// </summary>
         public string Hash(string password) => $"hash::{password}";
 
 /// <summary>
-/// Valida se o valor informado corresponde ao hash persistido.
+/// Verifica se o valor informado corresponde ao hash armazenado.
 /// </summary>
         public bool Verify(string password, string storedHash) => Hash(password) == storedHash;
     }

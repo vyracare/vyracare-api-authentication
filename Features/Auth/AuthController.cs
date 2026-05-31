@@ -12,14 +12,14 @@ namespace Vyracare.Auth.Features.Auth;
 [ApiController]
 [Route("api/auth")]
 /// <summary>
-/// Exp?e os endpoints HTTP desta feature e delega o processamento para os handlers da aplica??o.
+/// Expõe os endpoints HTTP da feature e delega o processamento aos handlers da aplicação.
 /// </summary>
 public sealed class AuthController : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
 /// <summary>
-/// Executa a responsabilidade associada a r eg is te r.
+/// Executa a responsabilidade do método R eg is te r.
 /// </summary>
     public async Task<IActionResult> Register(
         [FromBody] RegisterRequest request,
@@ -32,7 +32,7 @@ public sealed class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("first-access/check")]
 /// <summary>
-/// Executa a responsabilidade associada a c he ck fi rs ta cc es s.
+/// Executa a responsabilidade do método C he ck Fi rs tA cc es s.
 /// </summary>
     public async Task<IActionResult> CheckFirstAccess(
         [FromBody] FirstAccessCheckRequest request,
@@ -45,7 +45,7 @@ public sealed class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("first-access/set-password")]
 /// <summary>
-/// Executa a responsabilidade associada a s et fi rs ta cc es sp as sw or d.
+/// Executa a responsabilidade do método S et Fi rs tA cc es sP as sw or d.
 /// </summary>
     public async Task<IActionResult> SetFirstAccessPassword(
         [FromBody] FirstAccessSetPasswordRequest request,
@@ -58,7 +58,7 @@ public sealed class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("forgot-password")]
 /// <summary>
-/// Executa a responsabilidade associada a f or go tp as sw or d.
+/// Executa a responsabilidade do método F or go tP as sw or d.
 /// </summary>
     public async Task<IActionResult> ForgotPassword(
         [FromBody] ForgotPasswordRequest request,
@@ -71,7 +71,7 @@ public sealed class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("login")]
 /// <summary>
-/// Executa a responsabilidade associada a l og in.
+/// Executa a responsabilidade do método L og in.
 /// </summary>
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request,

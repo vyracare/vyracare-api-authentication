@@ -1,7 +1,7 @@
 namespace Vyracare.Auth.Features.Auth.Shared.Ports;
 
 /// <summary>
-/// Define um contrato usado para desacoplar a regra de neg?cio dos detalhes de implementa??o.
+/// Define o contrato para geração e verificação de hashes usados pela aplicação.
 /// </summary>
 public interface IPasswordHasher
 {
