@@ -1,0 +1,13 @@
+{
+  "consumerMfe": {
+    "repositoryFullName": "vyracare/vyracare-app-shell",
+    "apiUrlProperty": "apiUrl",
+    "environmentFiles": [
+      "src/environments/environments.ts",
+      "src/environments/environments.prod.ts"
+    ],
+    "environmentProperties": {
+      "api_id": "{{API_GATEWAY_ID}}"
+    }
+  }
+}
