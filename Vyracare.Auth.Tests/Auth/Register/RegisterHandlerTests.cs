@@ -7,14 +7,15 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Tests.Auth.Register;
 
 /// <summary>
-/// Representa o componente RegisterHandlerTests da aplicação.
+/// Agrupa os testes unitários do caso de uso de registro de usuário.
+/// Os cenários aqui validam a regra de negócio sem depender de banco, relógio real ou infraestrutura externa.
 /// </summary>
 public sealed class RegisterHandlerTests
 {
     [Fact]
-/// <summary>
-/// Executa a responsabilidade do método D ev e_r et or na r_c on fl ic t_q ua nd o_e ma il_j a_e xi st ir.
-/// </summary>
+    /// <summary>
+    /// Garante que o cadastro devolve conflito quando já existe usuário com o mesmo e-mail.
+    /// </summary>
     public async Task Deve_retornar_conflict_quando_email_ja_existir()
     {
         var repository = new FakeUserRepository();
@@ -29,9 +30,9 @@ public sealed class RegisterHandlerTests
     }
 
     [Fact]
-/// <summary>
-/// Executa a responsabilidade do método D ev e_c ri ar_u su ar io_q ua nd o_e ma il_n ao_e xi st ir.
-/// </summary>
+    /// <summary>
+    /// Garante que o cadastro cria um novo usuário quando o e-mail ainda não está em uso.
+    /// </summary>
     public async Task Deve_criar_usuario_quando_email_nao_existir()
     {
         var repository = new FakeUserRepository();
@@ -44,16 +45,19 @@ public sealed class RegisterHandlerTests
         Assert.Single(repository.Users);
     }
 
+    /// <summary>
+    /// Fake em memória que simula o comportamento do repositório de usuários durante os testes.
+    /// </summary>
     private sealed class FakeUserRepository : IUserRepository
     {
-/// <summary>
-/// Obtém ou define o valor da propriedade U se rs.
-/// </summary>
+        /// <summary>
+        /// Lista usada para armazenar os usuários gravados durante a execução dos testes.
+        /// </summary>
         public List<User> Users { get; } = [];
 
-/// <summary>
-/// Persiste um novo registro e devolve a entidade resultante da operação.
-/// </summary>
+        /// <summary>
+        /// Adiciona um usuário à coleção em memória e simula a geração de identificador.
+        /// </summary>
         public Task<User> AddAsync(User user)
         {
             user.Id ??= Guid.NewGuid().ToString("N");
@@ -61,40 +65,49 @@ public sealed class RegisterHandlerTests
             return Task.FromResult(user);
         }
 
-/// <summary>
-/// Recupera um registro específico a partir do e-mail informado.
-/// </summary>
+        /// <summary>
+        /// Busca um usuário pelo e-mail na coleção em memória.
+        /// </summary>
         public Task<User?> GetByEmailAsync(string email)
         {
             return Task.FromResult(Users.FirstOrDefault(user => user.Email == email));
         }
 
-/// <summary>
-/// Executa a responsabilidade do método S et Pa ss wo rd If Em pt yA sy nc.
-/// </summary>
+        /// <summary>
+        /// Não participa destes cenários de teste; retorna falso por padrão.
+        /// </summary>
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);
 
-/// <summary>
-/// Atualiza a senha persistida para o usuário informado.
-/// </summary>
+        /// <summary>
+        /// Não participa destes cenários de teste; retorna falso por padrão.
+        /// </summary>
         public Task<bool> UpdatePasswordAsync(string email, string passwordHash) => Task.FromResult(false);
     }
 
+    /// <summary>
+    /// Fake do hasher usada para deixar o valor do hash previsível durante os testes.
+    /// </summary>
     private sealed class FakePasswordHasher : IPasswordHasher
     {
-/// <summary>
-/// Calcula o hash seguro do valor informado.
-/// </summary>
+        /// <summary>
+        /// Gera um hash textual simples o suficiente para ser validado nas asserções.
+        /// </summary>
         public string Hash(string password) => $"hash::{password}";
 
-/// <summary>
-/// Verifica se o valor informado corresponde ao hash armazenado.
-/// </summary>
+        /// <summary>
+        /// Compara a senha recebida com o formato de hash simplificado usado nos testes.
+        /// </summary>
         public bool Verify(string password, string storedHash) => Hash(password) == storedHash;
     }
 
+    /// <summary>
+    /// Fake de relógio que fixa a data de criação do usuário para evitar dependência do relógio real.
+    /// </summary>
     private sealed class FixedClock : IClock
     {
+        /// <summary>
+        /// Obtém a data fixa usada pelos cenários de teste.
+        /// </summary>
         public DateTime UtcNow => new(2026, 5, 30, 12, 0, 0, DateTimeKind.Utc);
     }
 }

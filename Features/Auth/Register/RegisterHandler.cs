@@ -5,7 +5,8 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Features.Auth.Register;
 
 /// <summary>
-/// Implementa o caso de uso correspondente a esta feature.
+/// Implementa o caso de uso de cadastro de usuário.
+/// Esta classe garante que não haja duplicidade por e-mail e normaliza os dados antes de persisti-los.
 /// </summary>
 public sealed class RegisterHandler
 {
@@ -13,9 +14,9 @@ public sealed class RegisterHandler
     private readonly IPasswordHasher _passwordHasher;
     private readonly IClock _clock;
 
-/// <summary>
-/// Inicializa uma nova instância de RegisterHandler.
-/// </summary>
+    /// <summary>
+    /// Inicializa uma nova instância do handler de registro.
+    /// </summary>
     public RegisterHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IClock clock)
     {
         _userRepository = userRepository;
@@ -23,9 +24,13 @@ public sealed class RegisterHandler
         _clock = clock;
     }
 
-/// <summary>
-/// Executa o caso de uso e devolve o resultado padronizado da operação.
-/// </summary>
+    /// <summary>
+    /// Executa o fluxo de cadastro.
+    /// O método valida o e-mail, impede conflitos por duplicidade, monta a entidade de domínio
+    /// com dados normalizados e persiste o usuário na base.
+    /// </summary>
+    /// <param name="request">Dados recebidos do cliente para criação do usuário.</param>
+    /// <returns>Identificador e mensagem de sucesso, ou uma falha padronizada.</returns>
     public async Task<UseCaseResult<RegisterResponse>> HandleAsync(RegisterRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))

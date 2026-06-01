@@ -6,32 +6,38 @@ using Vyracare.Auth.Infrastructure.Persistence.Documents;
 namespace Vyracare.Auth.Infrastructure.Persistence;
 
 /// <summary>
-/// Implementa o acesso aos dados da feature usando a infraestrutura configurada.
+/// Implementa a porta <see cref="IUserRepository"/> usando MongoDB.
+/// Esta classe é o adapter responsável por transformar entidade de domínio em documento e vice-versa.
 /// </summary>
 public sealed class MongoUserRepository : IUserRepository
 {
     private readonly IMongoCollection<UserDocument> _collection;
 
-/// <summary>
-/// Inicializa uma nova instância de MongoUserRepository.
-/// </summary>
+    /// <summary>
+    /// Inicializa o repositório apontando para a collection <c>users</c> do banco configurado.
+    /// </summary>
+    /// <param name="database">Banco Mongo resolvido para o ambiente atual.</param>
     public MongoUserRepository(IMongoDatabase database)
     {
         _collection = database.GetCollection<UserDocument>("users");
     }
 
-/// <summary>
-/// Recupera um registro específico a partir do e-mail informado.
-/// </summary>
+    /// <summary>
+    /// Localiza um usuário pelo e-mail e converte o documento encontrado para a entidade de domínio.
+    /// </summary>
+    /// <param name="email">E-mail usado como filtro da busca.</param>
+    /// <returns>Entidade de domínio correspondente ou <see langword="null"/> quando não houver registro.</returns>
     public async Task<User?> GetByEmailAsync(string email)
     {
         var document = await _collection.Find(item => item.Email == email).FirstOrDefaultAsync();
         return document is null ? null : MapToDomain(document);
     }
 
-/// <summary>
-/// Persiste um novo registro e devolve a entidade resultante da operação.
-/// </summary>
+    /// <summary>
+    /// Insere um novo usuário na collection e devolve a entidade com o identificador persistido.
+    /// </summary>
+    /// <param name="user">Entidade de domínio pronta para gravação.</param>
+    /// <returns>Entidade persistida com o identificador retornado pelo MongoDB.</returns>
     public async Task<User> AddAsync(User user)
     {
         var document = MapToDocument(user);
@@ -40,9 +46,13 @@ public sealed class MongoUserRepository : IUserRepository
         return user;
     }
 
-/// <summary>
-/// Executa a responsabilidade do método S et Pa ss wo rd If Em pt yA sy nc.
-/// </summary>
+    /// <summary>
+    /// Define a senha do usuário somente se o hash atual ainda estiver vazio ou nulo.
+    /// Esse comportamento protege o fluxo de primeiro acesso contra sobrescrita de senha já existente.
+    /// </summary>
+    /// <param name="email">E-mail do usuário que receberá a senha inicial.</param>
+    /// <param name="passwordHash">Hash calculado da senha informada.</param>
+    /// <returns><see langword="true"/> quando a senha foi gravada; caso contrário, <see langword="false"/>.</returns>
     public async Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash)
     {
         var filter = Builders<UserDocument>.Filter.Eq(item => item.Email, email)
@@ -56,9 +66,13 @@ public sealed class MongoUserRepository : IUserRepository
         return result.ModifiedCount > 0;
     }
 
-/// <summary>
-/// Atualiza a senha persistida para o usuário informado.
-/// </summary>
+    /// <summary>
+    /// Atualiza a senha de um usuário existente sem exigir que o hash anterior esteja vazio.
+    /// Esse método é usado no fluxo de recuperação de senha.
+    /// </summary>
+    /// <param name="email">E-mail do usuário que terá a senha atualizada.</param>
+    /// <param name="passwordHash">Hash da nova senha.</param>
+    /// <returns><see langword="true"/> quando o usuário foi encontrado; caso contrário, <see langword="false"/>.</returns>
     public async Task<bool> UpdatePasswordAsync(string email, string passwordHash)
     {
         var filter = Builders<UserDocument>.Filter.Eq(item => item.Email, email);
@@ -67,6 +81,9 @@ public sealed class MongoUserRepository : IUserRepository
         return result.MatchedCount > 0;
     }
 
+    /// <summary>
+    /// Converte a entidade de domínio em documento de persistência.
+    /// </summary>
     private static UserDocument MapToDocument(User user) => new()
     {
         Id = user.Id,
@@ -81,6 +98,9 @@ public sealed class MongoUserRepository : IUserRepository
         CreatedAt = user.CreatedAt
     };
 
+    /// <summary>
+    /// Converte o documento retornado pelo MongoDB em entidade de domínio.
+    /// </summary>
     private static User MapToDomain(UserDocument document) => new()
     {
         Id = document.Id,
