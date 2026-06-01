@@ -8,36 +8,113 @@ on:
       - 'release/**'
       - main
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   cd-auth-dot-net:
     uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/cd-auth-dot-net.yml@main
     with:
       branch-name: ${{ github.ref_name }}
-      backend-repo: ${{ github.repository }}
-      project-path: Vyracare.Auth.csproj
+      project-path: Vyracare.Api.Authentication.csproj
       output-dir: backend-publish
+      api-id: ${{ secrets.API_ID }}
+      authorizer-id: ${{ secrets.AUTHORIZER_ID }}
+      route-get-users-id: ${{ secrets.ROUTE_GET_USERS_ID }}
+      route-register-id: ${{ secrets.ROUTE_REGISTER_ID }}
+      route-login-id: ${{ secrets.ROUTE_LOGIN_ID }}
+      route-first-access-check-id: ${{ secrets.ROUTE_FIRST_ACCESS_CHECK_ID }}
+      route-first-access-set-password-id: ${{ secrets.ROUTE_FIRST_ACCESS_SET_PASSWORD_ID }}
+      route-reset-password-request-id: ${{ secrets.ROUTE_RESET_PASSWORD_REQUEST_ID }}
+      route-reset-password-confirm-id: ${{ secrets.ROUTE_RESET_PASSWORD_CONFIRM_ID }}
+      user-pool-id: ${{ secrets.USER_POOL_ID }}
+      user-pool-client-id: ${{ secrets.USER_POOL_CLIENT_ID }}
+      consumer-mfe-repository: vyracare/vyracare-app-shell
     secrets: inherit
+
+  create-release-branch:
+    name: Create versioned release branch
+    runs-on: ubuntu-latest
+    needs: cd-auth-dot-net
+    if: github.ref == 'refs/heads/develop'
+    outputs:
+      branch: ${{ steps.release_branch.outputs.branch }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create or reuse release branch
+        id: release_branch
+        run: |
+          set -euo pipefail
+          RELEASE_BRANCH="release/v$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch origin main develop
+          if git ls-remote --heads origin "$RELEASE_BRANCH" | grep -q "$RELEASE_BRANCH"; then
+            git checkout -B "$RELEASE_BRANCH" "origin/$RELEASE_BRANCH"
+          else
+            git checkout -B "$RELEASE_BRANCH" "origin/main"
+            git push -u origin "$RELEASE_BRANCH"
+          fi
+          echo "branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
+
+  open-pr-release:
+    name: Open Pull Request to versioned release
+    runs-on: ubuntu-latest
+    needs: create-release-branch
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Open Pull Request to release
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          source_branch: develop
+          destination_branch: ${{ needs.create-release-branch.outputs.branch }}
+          pr_title: "PR automatic develop into ${{ needs.create-release-branch.outputs.branch }}"
+          pr_body: |
+            PR automatica criada pelo pipeline.
+            Branch de origem: `develop`
+            Destino: `${{ needs.create-release-branch.outputs.branch }}`
 
   open-pr-main:
     name: Open Pull Request to main
     runs-on: ubuntu-latest
     needs: cd-auth-dot-net
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/release' || startsWith(github.ref, 'refs/heads/release/')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect whether release branch is ahead of main
+        id: release_diff
+        run: |
+          set -euo pipefail
+          git fetch origin main "${{ github.ref_name }}"
+          git checkout -B "${{ github.ref_name }}" "origin/${{ github.ref_name }}"
+          ahead_count=$(git rev-list --count origin/main..HEAD)
+          echo "ahead_count=$ahead_count" >> $GITHUB_OUTPUT
+          if [ "$ahead_count" -gt 0 ]; then
+            echo "should_open=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_open=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Open Pull Request to main
+        if: steps.release_diff.outputs.should_open == 'true'
         uses: repo-sync/pull-request@v2
         with:
           github_token: ${{ secrets.PAT_TOKEN }}
-          source_branch: develop
+          source_branch: ${{ github.ref_name }}
           destination_branch: main
-          pr_title: "🚀 Merge develop into main (Auto PR via Pipeline)"
+          pr_title: "PR automatic ${{ github.ref_name }} into main"
           pr_body: |
-            PR automática criada pelo workflow **PUBLISH**.
-            Branch de origem: `develop`
+            PR automatica criada pelo pipeline.
+            Branch de origem: `${{ github.ref_name }}`
             Destino: `main`
-
-            ✅ CD executado com sucesso no repositório de infra.
-            🧩 Iniciado por: ${{ github.actor }}
