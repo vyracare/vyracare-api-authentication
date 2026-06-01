@@ -14,5 +14,5 @@ public sealed class MongoOptions
 /// <summary>
 /// Obtém ou define o nome do banco de dados utilizado pela aplicação.
 /// </summary>
-    public string Database { get; set; } = "vyracare";
+    public string Database { get; set; } = "vyracare_db";
 }
