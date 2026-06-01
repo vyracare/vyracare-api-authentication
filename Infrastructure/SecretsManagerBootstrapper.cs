@@ -56,8 +56,8 @@ public static class SecretsManagerBootstrapper
             return;
         }
 
-        var secretName = configuration[secretNameConfigKey] ??
-            Environment.GetEnvironmentVariable(secretNameEnvironmentVariable);
+        var secretName = Environment.GetEnvironmentVariable(secretNameEnvironmentVariable) ??
+            configuration[secretNameConfigKey];
 
         if (string.IsNullOrWhiteSpace(secretName))
         {
