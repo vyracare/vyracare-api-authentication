@@ -5,8 +5,14 @@ using System.Text.Json;
 
 namespace Vyracare.Auth.Infrastructure;
 
+/// <summary>
+/// Aplica os valores externos e segredos necessários durante a inicialização da aplicação.
+/// </summary>
 public static class SecretsManagerBootstrapper
 {
+/// <summary>
+/// Aplica os valores externos necessários antes da inicialização completa da aplicação.
+/// </summary>
     public static async Task ApplyAsync(ConfigurationManager configuration)
     {
         var overrides = new Dictionary<string, string>();

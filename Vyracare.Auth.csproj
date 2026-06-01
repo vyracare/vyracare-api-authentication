@@ -10,7 +10,7 @@
   <ItemGroup>
 
     <!-- Pacotes JWT -->
-    <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.3.2" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.149" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
 
@@ -24,6 +24,12 @@
 
     <!-- Swagger (opcional) -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Vyracare.Auth.Tests\**\*.cs" />
+    <EmbeddedResource Remove="Vyracare.Auth.Tests\**\*" />
+    <None Remove="Vyracare.Auth.Tests\**\*" />
   </ItemGroup>
 
 </Project>
