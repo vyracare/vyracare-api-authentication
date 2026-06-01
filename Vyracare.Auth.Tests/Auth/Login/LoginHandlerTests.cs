@@ -6,14 +6,16 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Tests.Auth.Login;
 
 /// <summary>
-/// Representa o componente LoginHandlerTests da aplicação.
+/// Agrupa os testes unitários do caso de uso de login.
+/// Aqui o objetivo é validar a regra de autenticação sem depender de MongoDB, JWT real ou HTTP.
 /// </summary>
 public sealed class LoginHandlerTests
 {
     [Fact]
-/// <summary>
-/// Executa a responsabilidade do método D ev e_r et or na r_u na ut ho ri ze d_q ua nd o_u su ar io_n ao_e xi st ir.
-/// </summary>
+    /// <summary>
+    /// Garante que o login falha com status de não autorizado quando o e-mail informado
+    /// não corresponde a nenhum usuário persistido.
+    /// </summary>
     public async Task Deve_retornar_unauthorized_quando_usuario_nao_existir()
     {
         var handler = new LoginHandler(
@@ -28,9 +30,10 @@ public sealed class LoginHandlerTests
     }
 
     [Fact]
-/// <summary>
-/// Executa a responsabilidade do método D ev e_r et or na r_t ok en_q ua nd o_c re de nc ia is_f or e_v al id as.
-/// </summary>
+    /// <summary>
+    /// Garante que o handler devolve token quando o usuário existe e a senha informada
+    /// corresponde ao hash persistido.
+    /// </summary>
     public async Task Deve_retornar_token_quando_credenciais_fore_validas()
     {
         var repository = new FakeUserRepository();
@@ -52,13 +55,16 @@ public sealed class LoginHandlerTests
         Assert.Equal("token-fake", result.Value!.Token);
     }
 
+    /// <summary>
+    /// Fake em memória usado para simular persistência nos testes do handler.
+    /// </summary>
     private sealed class FakeUserRepository : IUserRepository
     {
         private readonly List<User> _users = [];
 
-/// <summary>
-/// Persiste um novo registro e devolve a entidade resultante da operação.
-/// </summary>
+        /// <summary>
+        /// Adiciona um usuário à lista local e simula a geração de identificador.
+        /// </summary>
         public Task<User> AddAsync(User user)
         {
             user.Id ??= Guid.NewGuid().ToString("N");
@@ -66,43 +72,49 @@ public sealed class LoginHandlerTests
             return Task.FromResult(user);
         }
 
-/// <summary>
-/// Recupera um registro específico a partir do e-mail informado.
-/// </summary>
+        /// <summary>
+        /// Localiza um usuário pelo e-mail dentro da coleção em memória.
+        /// </summary>
         public Task<User?> GetByEmailAsync(string email)
         {
             return Task.FromResult(_users.FirstOrDefault(user => user.Email == email));
         }
 
-/// <summary>
-/// Executa a responsabilidade do método S et Pa ss wo rd If Em pt yA sy nc.
-/// </summary>
+        /// <summary>
+        /// Não é usado por estes testes; retorna sempre falso.
+        /// </summary>
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);
 
-/// <summary>
-/// Atualiza a senha persistida para o usuário informado.
-/// </summary>
+        /// <summary>
+        /// Não é usado por estes testes; retorna sempre falso.
+        /// </summary>
         public Task<bool> UpdatePasswordAsync(string email, string passwordHash) => Task.FromResult(false);
     }
 
+    /// <summary>
+    /// Fake de hashing que torna os testes determinísticos.
+    /// </summary>
     private sealed class FakePasswordHasher : IPasswordHasher
     {
-/// <summary>
-/// Calcula o hash seguro do valor informado.
-/// </summary>
+        /// <summary>
+        /// Devolve sempre o mesmo hash esperado pelos testes.
+        /// </summary>
         public string Hash(string password) => "hash-123";
 
-/// <summary>
-/// Verifica se o valor informado corresponde ao hash armazenado.
-/// </summary>
+        /// <summary>
+        /// Considera válida apenas a combinação esperada pelo cenário de teste.
+        /// </summary>
         public bool Verify(string password, string storedHash) => password == "123456" && storedHash == "hash-123";
     }
 
+    /// <summary>
+    /// Fake do gerador de token que evita dependência de criptografia real nos testes.
+    /// </summary>
     private sealed class FakeJwtTokenGenerator : IJwtTokenGenerator
     {
-/// <summary>
-/// Gera um token a partir das informações do usuário informado.
-/// </summary>
+        /// <summary>
+        /// Devolve um token fixo para facilitar a asserção do cenário.
+        /// </summary>
         public string Generate(User user) => "token-fake";
     }
 }

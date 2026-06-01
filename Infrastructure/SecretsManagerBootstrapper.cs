@@ -6,13 +6,17 @@ using System.Text.Json;
 namespace Vyracare.Auth.Infrastructure;
 
 /// <summary>
-/// Aplica os valores externos e segredos necessários durante a inicialização da aplicação.
+/// Carrega segredos externos antes da aplicação concluir o startup.
+/// Essa etapa permite preencher configurações críticas, como connection string do Mongo e chave JWT,
+/// sem mantê-las versionadas no repositório.
 /// </summary>
 public static class SecretsManagerBootstrapper
 {
-/// <summary>
-/// Aplica os valores externos necessários antes da inicialização completa da aplicação.
-/// </summary>
+    /// <summary>
+    /// Aplica na configuração em memória os valores resolvidos no AWS Secrets Manager.
+    /// O método tenta popular primeiro a connection string do Mongo e depois a chave JWT.
+    /// </summary>
+    /// <param name="configuration">Objeto de configuração em construção durante o startup.</param>
     public static async Task ApplyAsync(ConfigurationManager configuration)
     {
         var overrides = new Dictionary<string, string>();
@@ -41,6 +45,11 @@ public static class SecretsManagerBootstrapper
         }
     }
 
+    /// <summary>
+    /// Tenta resolver um secret e copiá-lo para a chave de configuração de destino.
+    /// O método respeita a ordem de prioridade: valor já presente na configuração, fallback por variável
+    /// de ambiente e, por último, consulta ao Secrets Manager.
+    /// </summary>
     private static async Task TryAddSecretValueAsync(
         IConfiguration configuration,
         IDictionary<string, string> overrides,
@@ -87,6 +96,13 @@ public static class SecretsManagerBootstrapper
         }
     }
 
+    /// <summary>
+    /// Extrai do JSON do secret a propriedade esperada para a configuração de destino.
+    /// Quando o secret não for um JSON de objeto, o método devolve a string completa.
+    /// </summary>
+    /// <param name="secretString">Conteúdo bruto retornado pelo AWS Secrets Manager.</param>
+    /// <param name="secretPropertyName">Nome da propriedade esperada dentro do JSON.</param>
+    /// <returns>Valor da propriedade encontrada ou o texto bruto do secret.</returns>
     private static string ExtractSecretValue(string secretString, string secretPropertyName)
     {
         try
