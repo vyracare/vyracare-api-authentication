@@ -162,8 +162,10 @@ Os valores sensiveis nao ficam versionados no repositorio.
 
 Em runtime, a API tenta ler:
 
-- `vyracare/shared/mongo`
-- `vyracare/shared/jwt-signing`
+- `vyracare/shared/mongo-prod`
+- `vyracare/shared/mongo-dev`
+- `vyracare/shared/jwt-signing-prod`
+- `vyracare/shared/jwt-signing-dev`
 
 Isso acontece em [SecretsManagerBootstrapper.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/SecretsManagerBootstrapper.cs).
 
