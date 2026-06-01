@@ -15,13 +15,17 @@ using Vyracare.Auth.Infrastructure.Time;
 namespace Vyracare.Auth.Infrastructure.DependencyInjection;
 
 /// <summary>
-/// Centraliza métodos de extensão responsáveis por registrar dependências da aplicação.
+/// Centraliza os métodos de extensão responsáveis por montar o container de dependências da API.
+/// Aqui fica o ponto de composição entre domínio, casos de uso e infraestrutura.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-/// <summary>
-/// Registra dependências e configurações relacionadas a este componente.
-/// </summary>
+    /// <summary>
+    /// Registra os serviços centrais da feature de autenticação.
+    /// Isso inclui abstrações de tempo, segurança, persistência e os handlers de cada caso de uso.
+    /// </summary>
+    /// <param name="services">Coleção de serviços da aplicação.</param>
+    /// <returns>A própria coleção, para permitir encadeamento fluente.</returns>
     public static IServiceCollection AddAuthCore(this IServiceCollection services)
     {
         services.AddSingleton<IClock, SystemClock>();
@@ -39,9 +43,12 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-/// <summary>
-/// Registra os serviços necessários para conectar a aplicação ao MongoDB.
-/// </summary>
+    /// <summary>
+    /// Registra o cliente MongoDB e o banco configurado para o ambiente corrente.
+    /// O nome do banco e a connection string já devem estar resolvidos no momento em que este método é chamado.
+    /// </summary>
+    /// <param name="services">Coleção de serviços da aplicação.</param>
+    /// <returns>A própria coleção, para permitir encadeamento fluente.</returns>
     public static IServiceCollection AddMongo(this IServiceCollection services)
     {
         services.AddSingleton<IMongoClient>(sp =>

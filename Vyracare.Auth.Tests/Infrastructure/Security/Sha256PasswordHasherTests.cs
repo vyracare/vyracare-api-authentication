@@ -3,14 +3,14 @@ using Vyracare.Auth.Infrastructure.Security;
 namespace Vyracare.Auth.Tests.Infrastructure.Security;
 
 /// <summary>
-/// Representa o componente Sha256PasswordHasherTests da aplicação.
+/// Agrupa testes unitários da implementação concreta de hashing usada pela API.
 /// </summary>
 public sealed class Sha256PasswordHasherTests
 {
     [Fact]
-/// <summary>
-/// Executa a responsabilidade do método D ev e_v al id ar_h as h_d a_m es ma_s en ha.
-/// </summary>
+    /// <summary>
+    /// Garante que um hash gerado a partir de uma senha válida pode ser validado pela mesma implementação.
+    /// </summary>
     public void Deve_validar_hash_da_mesma_senha()
     {
         var hasher = new Sha256PasswordHasher();

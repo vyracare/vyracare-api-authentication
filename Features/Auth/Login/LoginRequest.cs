@@ -1,6 +1,8 @@
 namespace Vyracare.Auth.Features.Auth.Login;
 
 /// <summary>
-/// Define o contrato de entrada ou saída usado por esta feature.
+/// Representa os dados recebidos do cliente para autenticar um usuário.
 /// </summary>
+/// <param name="Email">E-mail usado para localizar o usuário na base.</param>
+/// <param name="Password">Senha em texto puro enviada pelo cliente para validação.</param>
 public sealed record LoginRequest(string Email, string Password);

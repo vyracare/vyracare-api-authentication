@@ -10,23 +10,28 @@ using Vyracare.Auth.Features.Auth.Shared.Ports;
 namespace Vyracare.Auth.Infrastructure.Security;
 
 /// <summary>
-/// Implementa a geração de tokens de autenticação da aplicação.
+/// Implementa a geração de tokens JWT da aplicação.
+/// Esta classe transforma os dados relevantes do usuário em claims e assina o token
+/// com a chave configurada para o ambiente.
 /// </summary>
 public sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtOptions _options;
 
-/// <summary>
-/// Inicializa uma nova instância de JwtTokenGenerator.
-/// </summary>
+    /// <summary>
+    /// Inicializa o gerador de token com as opções de JWT resolvidas na configuração da aplicação.
+    /// </summary>
     public JwtTokenGenerator(IOptions<JwtOptions> options)
     {
         _options = options.Value;
     }
 
-/// <summary>
-/// Gera um token a partir das informações do usuário informado.
-/// </summary>
+    /// <summary>
+    /// Gera um token JWT para o usuário informado.
+    /// O método valida dados mínimos, monta as claims principais e devolve o token já serializado.
+    /// </summary>
+    /// <param name="user">Usuário autenticado que servirá de base para as claims.</param>
+    /// <returns>Token JWT em formato texto.</returns>
     public string Generate(User user)
     {
         if (string.IsNullOrWhiteSpace(_options.Key))
