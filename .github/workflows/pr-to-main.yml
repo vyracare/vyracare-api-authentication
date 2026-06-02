@@ -46,6 +46,7 @@ jobs:
     with:
       branch-name: ${{ github.ref_name }}
       project-path: Vyracare.Auth.csproj
+      test-project-path: Vyracare.Auth.Tests/Vyracare.Auth.Tests.csproj
       output-dir: ./publish
     secrets: inherit
 
