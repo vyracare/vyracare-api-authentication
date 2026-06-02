@@ -18,7 +18,7 @@ jobs:
     with:
       branch-name: ${{ github.ref_name }}
       backend-repo: ${{ github.repository }}
-      project-path: Vyracare.Api.Authentication.csproj
+      project-path: Vyracare.Auth.csproj
       output-dir: backend-publish
     secrets: inherit
 
