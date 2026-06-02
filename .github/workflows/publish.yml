@@ -17,6 +17,7 @@ jobs:
     uses: vyracare/vyracare-infra-pipes-dot-net/.github/workflows/cd-auth-dot-net.yml@main
     with:
       branch-name: ${{ github.ref_name }}
+      backend-repo: ${{ github.repository }}
       project-path: Vyracare.Api.Authentication.csproj
       output-dir: backend-publish
       api-id: ${{ secrets.API_ID }}
