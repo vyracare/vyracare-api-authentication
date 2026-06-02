@@ -20,18 +20,6 @@ jobs:
       backend-repo: ${{ github.repository }}
       project-path: Vyracare.Api.Authentication.csproj
       output-dir: backend-publish
-      api-id: ${{ secrets.API_ID }}
-      authorizer-id: ${{ secrets.AUTHORIZER_ID }}
-      route-get-users-id: ${{ secrets.ROUTE_GET_USERS_ID }}
-      route-register-id: ${{ secrets.ROUTE_REGISTER_ID }}
-      route-login-id: ${{ secrets.ROUTE_LOGIN_ID }}
-      route-first-access-check-id: ${{ secrets.ROUTE_FIRST_ACCESS_CHECK_ID }}
-      route-first-access-set-password-id: ${{ secrets.ROUTE_FIRST_ACCESS_SET_PASSWORD_ID }}
-      route-reset-password-request-id: ${{ secrets.ROUTE_RESET_PASSWORD_REQUEST_ID }}
-      route-reset-password-confirm-id: ${{ secrets.ROUTE_RESET_PASSWORD_CONFIRM_ID }}
-      user-pool-id: ${{ secrets.USER_POOL_ID }}
-      user-pool-client-id: ${{ secrets.USER_POOL_CLIENT_ID }}
-      consumer-mfe-repository: vyracare/vyracare-app-shell
     secrets: inherit
 
   create-release-branch:
