@@ -13,16 +13,20 @@ jobs:
     with:
       branch-name: ${{ github.ref_name }}
       project-path: Vyracare.Auth.csproj
-      output-dir: "./publish"
+      output-dir: ./publish
     secrets: inherit
-   
+
   open-pr-develop:
     runs-on: ubuntu-latest
     needs: ci-auth-dot-net
     if: startsWith(github.ref, 'refs/heads/feat/') || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feature/')
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Open Pull Request to develop
         uses: repo-sync/pull-request@v2
@@ -32,7 +36,5 @@ jobs:
           destination_branch: develop
           pr_title: "PR automatic ${{ github.ref_name }} into develop"
           pr_body: |
-            PR automática criada pelo pipeline.
+            PR automatica criada pelo pipeline.
             Branch de origem: `${{ github.ref_name }}`
-
-            name: Publish Backend
