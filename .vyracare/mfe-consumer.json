@@ -7,9 +7,6 @@
       "src/environments/environments.dev.ts",
       "src/environments/environments.hml.ts",
       "src/environments/environments.prod.ts"
-    ],
-    "environmentProperties": {
-      "api_id": "{{API_GATEWAY_ID}}"
-    }
+    ]
   }
 }
