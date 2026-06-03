@@ -317,14 +317,16 @@ Hoje o consumidor configurado e:
 Quando o deploy termina, a esteira atualiza automaticamente no shell:
 
 - `apiUrl`
-- `api_id`
 
 nos arquivos:
 
-- `src/environments/environments.ts`
+- `src/environments/environments.dev.ts`
+- `src/environments/environments.hml.ts`
 - `src/environments/environments.prod.ts`
 
-Isso evita ficar trocando manualmente o ID e a URL do API Gateway sempre que a autenticacao muda.
+O arquivo `src/environments/environments.ts` fica reservado para desenvolvimento local.
+
+Isso evita ficar trocando manualmente a URL do API Gateway sempre que a autenticacao muda.
 
 ---
 
@@ -338,3 +340,13 @@ Se voce lembrar de uma regra, lembre desta:
 - a infraestrutura implementa o contrato;
 - os testes validam o handler sem depender do mundo externo;
 - a esteira separa `dev` e `prod` por nome de recurso, secret e banco.
+
+## Convencao de commits
+
+Os commits deste repositorio devem ser escritos em portugues.
+
+Padrao recomendado:
+
+- `feat: adiciona validacao de primeiro acesso`
+- `fix: corrige leitura de secret da autenticacao`
+- `docs: atualiza explicacao do fluxo de homologacao`
