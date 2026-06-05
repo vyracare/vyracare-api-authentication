@@ -109,7 +109,7 @@ public static class ParameterStoreBootstrapper
             var environmentValue = Environment.GetEnvironmentVariable(environmentVariable);
             if (!string.IsNullOrWhiteSpace(environmentValue))
             {
-                return environmentValue;
+                return NormalizeParameterName(environmentValue);
             }
         }
 
@@ -118,11 +118,26 @@ public static class ParameterStoreBootstrapper
             var configValue = configuration[configKey];
             if (!string.IsNullOrWhiteSpace(configValue))
             {
-                return configValue;
+                return NormalizeParameterName(configValue);
             }
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Garante compatibilidade com a convensao antiga da plataforma, que guardava o nome logico
+    /// sem a barra inicial exigida pelo Parameter Store.
+    /// </summary>
+    private static string NormalizeParameterName(string parameterName)
+    {
+        var trimmedName = parameterName.Trim();
+        if (trimmedName.Contains('/') && !trimmedName.StartsWith('/'))
+        {
+            return "/" + trimmedName;
+        }
+
+        return trimmedName;
     }
 
     /// <summary>
