@@ -8,7 +8,7 @@ using Vyracare.Auth.Infrastructure;
 using Vyracare.Auth.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-await SecretsManagerBootstrapper.ApplyAsync(builder.Configuration);
+await ParameterStoreBootstrapper.ApplyAsync(builder.Configuration);
 var configuration = builder.Configuration;
 
 builder.Services.Configure<MongoOptions>(configuration.GetSection(MongoOptions.SectionName));

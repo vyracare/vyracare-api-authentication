@@ -10,7 +10,7 @@
   <ItemGroup>
 
     <!-- Pacotes JWT -->
-    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.149" />
+    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.401.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
 
