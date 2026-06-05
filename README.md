@@ -38,7 +38,7 @@ Se voce esta chegando agora, leia nesta ordem:
    - [MongoUserRepository.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/Persistence/MongoUserRepository.cs)
    - [Sha256PasswordHasher.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/Security/Sha256PasswordHasher.cs)
    - [JwtTokenGenerator.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/Security/JwtTokenGenerator.cs)
-   - [SecretsManagerBootstrapper.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/SecretsManagerBootstrapper.cs)
+   - [ParameterStoreBootstrapper.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/ParameterStoreBootstrapper.cs)
 
 6. Os testes:
    - [LoginHandlerTests.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Vyracare.Auth.Tests/Auth/Login/LoginHandlerTests.cs)
@@ -95,7 +95,7 @@ Aqui ficam os detalhes tecnicos que a regra de negocio nao deve conhecer diretam
 - acesso ao MongoDB;
 - geracao de token JWT;
 - hash de senha;
-- leitura de secrets da AWS;
+- leitura de parametros seguros da AWS;
 - registro de dependencias no container.
 
 ### `Vyracare.Auth.Tests`
@@ -157,24 +157,27 @@ O JWT e configurado no [Program.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyrac
 - `Issuer`;
 - `Audience`;
 - `ExpiryMinutes`;
-- `Key` carregada via secret ou fallback.
+- `Key` carregada via Parameter Store ou fallback.
 
 As configuracoes base versionadas hoje estao em [appsettings.json](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/appsettings.json).
 
-### Secrets
+### Parameter Store
 
 Os valores sensiveis nao ficam versionados no repositorio.
 
-Em runtime, a API usa nomes de secret diferentes para cada ambiente:
+Em runtime, a API usa nomes de parametro diferentes para cada ambiente:
 
 - `prod`
   - `vyracare/shared/mongo-prod`
   - `vyracare/shared/jwt-signing-prod`
+- `hml`
+  - `vyracare/shared/mongo-hml`
+  - `vyracare/shared/jwt-signing-hml`
 - `dev`
   - `vyracare/shared/mongo-dev`
   - `vyracare/shared/jwt-signing-dev`
 
-Isso acontece em [SecretsManagerBootstrapper.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/SecretsManagerBootstrapper.cs).
+Isso acontece em [ParameterStoreBootstrapper.cs](C:/Users/lenin/OneDrive/Desktop/GitHub/Vyracare/vyracare-api-authentication/Infrastructure/ParameterStoreBootstrapper.cs).
 
 ### Banco de dados por ambiente
 
@@ -189,7 +192,7 @@ A connection string pode ser a mesma, mas o banco selecionado muda por variavel 
 
 ### Fallbacks
 
-Se o secret nao estiver disponivel, ainda existem fallbacks por variavel de ambiente:
+Se o parametro nao estiver disponivel, ainda existem fallbacks por variavel de ambiente:
 
 - `MONGO_URI`
 - `JWT_KEY`
@@ -317,14 +320,16 @@ Hoje o consumidor configurado e:
 Quando o deploy termina, a esteira atualiza automaticamente no shell:
 
 - `apiUrl`
-- `api_id`
 
 nos arquivos:
 
-- `src/environments/environments.ts`
+- `src/environments/environments.dev.ts`
+- `src/environments/environments.hml.ts`
 - `src/environments/environments.prod.ts`
 
-Isso evita ficar trocando manualmente o ID e a URL do API Gateway sempre que a autenticacao muda.
+O arquivo `src/environments/environments.ts` fica reservado para desenvolvimento local.
+
+Isso evita ficar trocando manualmente a URL do API Gateway sempre que a autenticacao muda.
 
 ---
 
@@ -337,4 +342,14 @@ Se voce lembrar de uma regra, lembre desta:
 - a porta define o contrato;
 - a infraestrutura implementa o contrato;
 - os testes validam o handler sem depender do mundo externo;
-- a esteira separa `dev` e `prod` por nome de recurso, secret e banco.
+- a esteira separa `dev`, `hml` e `prod` por nome de recurso, parametro e banco.
+
+## Convencao de commits
+
+Os commits deste repositorio devem ser escritos em portugues.
+
+Padrao recomendado:
+
+- `feat: adiciona validacao de primeiro acesso`
+- `fix: corrige leitura de parametro da autenticacao`
+- `docs: atualiza explicacao do fluxo de homologacao`
