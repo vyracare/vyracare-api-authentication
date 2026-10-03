@@ -80,6 +80,9 @@ public sealed class LoginHandlerTests
             return Task.FromResult(_users.FirstOrDefault(user => user.Email == email));
         }
 
+        public Task<IReadOnlyCollection<User>> SearchActiveAsync(string? search, int limit) =>
+            Task.FromResult<IReadOnlyCollection<User>>(_users.Where(user => user.Active).Take(limit).ToArray());
+
         /// <summary>
         /// Não é usado por estes testes; retorna sempre falso.
         /// </summary>

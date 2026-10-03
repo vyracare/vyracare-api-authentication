@@ -16,6 +16,11 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email);
 
     /// <summary>
+    /// Pesquisa usuarios ativos por nome, e-mail ou telefone para selecao operacional.
+    /// </summary>
+    Task<IReadOnlyCollection<User>> SearchActiveAsync(string? search, int limit);
+
+    /// <summary>
     /// Persiste um novo usuário na base.
     /// </summary>
     /// <param name="user">Entidade de domínio pronta para gravação.</param>

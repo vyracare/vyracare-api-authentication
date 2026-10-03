@@ -6,6 +6,7 @@ using Vyracare.Auth.Features.Auth.FirstAccessCheck;
 using Vyracare.Auth.Features.Auth.FirstAccessSetPassword;
 using Vyracare.Auth.Features.Auth.ForgotPassword;
 using Vyracare.Auth.Features.Auth.Login;
+using Vyracare.Auth.Features.Auth.SearchEmployees;
 using Vyracare.Auth.Features.Auth.Register;
 using Vyracare.Auth.Features.Auth.Shared.Ports;
 using Vyracare.Auth.Infrastructure.Persistence;
@@ -39,6 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<FirstAccessCheckHandler>();
         services.AddScoped<FirstAccessSetPasswordHandler>();
         services.AddScoped<ForgotPasswordHandler>();
+        services.AddScoped<SearchEmployeesHandler>();
 
         return services;
     }

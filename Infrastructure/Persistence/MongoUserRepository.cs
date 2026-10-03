@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using System.Text.RegularExpressions;
 using Vyracare.Auth.Features.Auth.Shared.Domain;
 using Vyracare.Auth.Features.Auth.Shared.Ports;
 using Vyracare.Auth.Infrastructure.Persistence.Documents;
@@ -31,6 +32,36 @@ public sealed class MongoUserRepository : IUserRepository
     {
         var document = await _collection.Find(item => item.Email == email).FirstOrDefaultAsync();
         return document is null ? null : MapToDomain(document);
+    }
+
+    /// <summary>
+    /// Pesquisa usuarios ativos por nome, e-mail ou telefone sem expor credenciais.
+    /// </summary>
+    public async Task<IReadOnlyCollection<User>> SearchActiveAsync(string? search, int limit)
+    {
+        var filter = Builders<UserDocument>.Filter.Eq(item => item.Active, true);
+        var normalizedSearch = search?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(normalizedSearch))
+        {
+            var expression = new MongoDB.Bson.BsonRegularExpression(Regex.Escape(normalizedSearch), "i");
+            var digits = Regex.Replace(normalizedSearch, @"\D", string.Empty);
+            var phonePattern = digits.Length > 0
+                ? string.Join(@"\D*", digits.Select(character => Regex.Escape(character.ToString())))
+                : Regex.Escape(normalizedSearch);
+            var phoneExpression = new MongoDB.Bson.BsonRegularExpression(phonePattern, "i");
+            filter &= Builders<UserDocument>.Filter.Or(
+                Builders<UserDocument>.Filter.Regex(item => item.FullName, expression),
+                Builders<UserDocument>.Filter.Regex(item => item.Email, expression),
+                Builders<UserDocument>.Filter.Regex(item => item.Phone, phoneExpression));
+        }
+
+        var documents = await _collection.Find(filter)
+            .SortBy(item => item.FullName)
+            .Limit(Math.Clamp(limit, 1, 20))
+            .ToListAsync();
+
+        return documents.Select(MapToDomain).ToArray();
     }
 
     /// <summary>

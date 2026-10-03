@@ -6,6 +6,7 @@ using Vyracare.Auth.Features.Auth.FirstAccessSetPassword;
 using Vyracare.Auth.Features.Auth.ForgotPassword;
 using Vyracare.Auth.Features.Auth.Login;
 using Vyracare.Auth.Features.Auth.Register;
+using Vyracare.Auth.Features.Auth.SearchEmployees;
 
 namespace Vyracare.Auth.Features.Auth;
 
@@ -18,6 +19,19 @@ namespace Vyracare.Auth.Features.Auth;
 /// </summary>
 public sealed class AuthController : ControllerBase
 {
+    [HttpGet("employees")]
+    /// <summary>
+    /// Pesquisa funcionarios ativos por nome, e-mail ou telefone para uso em seletores.
+    /// </summary>
+    public async Task<IActionResult> SearchEmployees(
+        [FromQuery] string? search,
+        [FromQuery] int limit,
+        [FromServices] SearchEmployeesHandler handler)
+    {
+        var result = await handler.HandleAsync(search, limit);
+        return this.ToActionResult(result, Ok);
+    }
+
     [AllowAnonymous]
     [HttpPost("register")]
     /// <summary>

@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Compile Remove="Vyracare.Auth.Tests\**\*.cs" />
+    <Content Remove="Vyracare.Auth.Tests\**\*" />
     <EmbeddedResource Remove="Vyracare.Auth.Tests\**\*" />
     <None Remove="Vyracare.Auth.Tests\**\*" />
   </ItemGroup>
