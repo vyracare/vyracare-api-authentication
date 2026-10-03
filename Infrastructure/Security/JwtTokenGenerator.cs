@@ -60,6 +60,17 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
             claims.Add(new Claim(JwtRegisteredClaimNames.Name, user.FullName));
         }
 
+        if (!string.IsNullOrWhiteSpace(user.AccessLevel))
+        {
+            claims.Add(new Claim(ClaimTypes.Role, user.AccessLevel.Trim()));
+            claims.Add(new Claim("access_level", user.AccessLevel.Trim()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.Role))
+        {
+            claims.Add(new Claim("job_role", user.Role.Trim()));
+        }
+
         var credentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key)),
             SecurityAlgorithms.HmacSha256);
