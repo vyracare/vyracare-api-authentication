@@ -54,6 +54,38 @@ public sealed class ManageEmployeesHandlerTests
         Assert.True(repository.Users[0].Active);
     }
 
+    [Fact]
+    public async Task Deve_excluir_outro_funcionario()
+    {
+        var repository = new Repository();
+
+        var result = await new DeleteEmployeeHandler(repository).HandleAsync("2", "1");
+
+        Assert.True(result.IsSuccess);
+        Assert.DoesNotContain(repository.Users, user => user.Id == "2");
+    }
+
+    [Fact]
+    public async Task Deve_impedir_autoexclusao()
+    {
+        var repository = new Repository();
+
+        var result = await new DeleteEmployeeHandler(repository).HandleAsync("1", "1");
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(UseCaseErrorType.Validation, result.ErrorType);
+        Assert.Contains(repository.Users, user => user.Id == "1");
+    }
+
+    [Fact]
+    public async Task Deve_retornar_nao_encontrado_ao_excluir_funcionario_inexistente()
+    {
+        var result = await new DeleteEmployeeHandler(new Repository()).HandleAsync("missing", "1");
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(UseCaseErrorType.NotFound, result.ErrorType);
+    }
+
     private sealed class Repository : IUserRepository
     {
         public List<User> Users { get; } =
@@ -73,6 +105,13 @@ public sealed class ManageEmployeesHandlerTests
             var user = Users.FirstOrDefault(item => item.Id == id);
             if (user is null) return Task.FromResult(false);
             user.Active = active;
+            return Task.FromResult(true);
+        }
+        public Task<bool> DeleteAsync(string id)
+        {
+            var user = Users.FirstOrDefault(item => item.Id == id);
+            if (user is null) return Task.FromResult(false);
+            Users.Remove(user);
             return Task.FromResult(true);
         }
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);

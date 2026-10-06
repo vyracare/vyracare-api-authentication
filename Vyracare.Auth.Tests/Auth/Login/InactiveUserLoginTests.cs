@@ -28,6 +28,7 @@ public sealed class InactiveUserLoginTests
         public Task<User> AddAsync(User value) => Task.FromResult(value);
         public Task<bool> UpdateAsync(User value) => Task.FromResult(true);
         public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
+        public Task<bool> DeleteAsync(string id) => Task.FromResult(false);
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);
         public Task<bool> UpdatePasswordAsync(string email, string passwordHash) => Task.FromResult(false);
     }

@@ -36,6 +36,7 @@ public sealed class SearchEmployeesHandlerTests
         public Task<User?> GetByIdAsync(string id) => Task.FromResult(users.FirstOrDefault(user => user.Id == id));
         public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
         public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
+        public Task<bool> DeleteAsync(string id) => Task.FromResult(false);
 
         public Task<User?> GetByEmailAsync(string email) => Task.FromResult<User?>(null);
         public Task<User> AddAsync(User user) => Task.FromResult(user);

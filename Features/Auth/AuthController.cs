@@ -104,6 +104,20 @@ public sealed class AuthController : ControllerBase
         return this.ToActionResult(result, Ok);
     }
 
+    [HttpDelete("employees/{id}")]
+    [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Exclui definitivamente um funcionário e impede que o administrador remova o próprio usuário.
+    /// </summary>
+    public async Task<IActionResult> DeleteEmployee(
+        string id,
+        [FromServices] DeleteEmployeeHandler handler)
+    {
+        var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var result = await handler.HandleAsync(id, requesterId);
+        return this.ToActionResult(result, _ => NoContent());
+    }
+
     [AllowAnonymous]
     [HttpPost("register")]
     /// <summary>

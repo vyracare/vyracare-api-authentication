@@ -81,6 +81,7 @@ public sealed class RegisterHandlerTests
         public Task<User?> GetByIdAsync(string id) => Task.FromResult(Users.FirstOrDefault(user => user.Id == id));
         public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
         public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
+        public Task<bool> DeleteAsync(string id) => Task.FromResult(false);
 
         /// <summary>
         /// Não participa destes cenários de teste; retorna falso por padrão.

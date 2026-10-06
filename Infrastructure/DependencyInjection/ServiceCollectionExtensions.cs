@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetManagedEmployeeHandler>();
         services.AddScoped<UpdateEmployeeHandler>();
         services.AddScoped<ChangeEmployeeStatusHandler>();
+        services.AddScoped<DeleteEmployeeHandler>();
 
         return services;
     }

@@ -42,6 +42,7 @@ public sealed class PublicRegistrationSecurityTests
         }
         public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
         public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
+        public Task<bool> DeleteAsync(string id) => Task.FromResult(false);
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);
         public Task<bool> UpdatePasswordAsync(string email, string passwordHash) => Task.FromResult(false);
     }

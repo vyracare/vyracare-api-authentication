@@ -89,6 +89,7 @@ public sealed class LoginHandlerTests
         public Task<User?> GetByIdAsync(string id) => Task.FromResult(_users.FirstOrDefault(user => user.Id == id));
         public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
         public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
+        public Task<bool> DeleteAsync(string id) => Task.FromResult(false);
 
         /// <summary>
         /// Não é usado por estes testes; retorna sempre falso.

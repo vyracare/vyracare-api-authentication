@@ -41,6 +41,11 @@ public interface IUserRepository
     Task<bool> SetActiveAsync(string id, bool active);
 
     /// <summary>
+    /// Exclui definitivamente o usuário identificado.
+    /// </summary>
+    Task<bool> DeleteAsync(string id);
+
+    /// <summary>
     /// Persiste um novo usuário na base.
     /// </summary>
     /// <param name="user">Entidade de domínio pronta para gravação.</param>

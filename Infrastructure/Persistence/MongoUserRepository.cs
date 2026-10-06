@@ -120,6 +120,16 @@ public sealed class MongoUserRepository : IUserRepository
     }
 
     /// <summary>
+    /// Remove definitivamente um usuário a partir de um ObjectId válido.
+    /// </summary>
+    public async Task<bool> DeleteAsync(string id)
+    {
+        if (!ObjectId.TryParse(id, out _)) return false;
+        var result = await _collection.DeleteOneAsync(item => item.Id == id);
+        return result.DeletedCount > 0;
+    }
+
+    /// <summary>
     /// Insere um novo usuário na collection e devolve a entidade com o identificador persistido.
     /// </summary>
     /// <param name="user">Entidade de domínio pronta para gravação.</param>
