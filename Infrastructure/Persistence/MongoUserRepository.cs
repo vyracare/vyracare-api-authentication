@@ -203,7 +203,7 @@ public sealed class MongoUserRepository : IUserRepository
         Phone = user.Phone,
         AccessLevel = user.AccessLevel,
         Active = user.Active,
-        PasswordHash = user.PasswordHash,
+        PasswordHash = user.PasswordHash ?? string.Empty,
         CreatedAt = user.CreatedAt
     };
 

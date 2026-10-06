@@ -8,6 +8,9 @@ namespace Vyracare.Auth.Features.Auth.ManageEmployees;
 /// </summary>
 public sealed class ChangeEmployeeStatusHandler(IUserRepository repository)
 {
+    /// <summary>
+    /// Altera somente o status operacional e rejeita a autoinativacao do solicitante.
+    /// </summary>
     public async Task<UseCaseResult<EmployeeManagementResponse>> HandleAsync(
         string id,
         ChangeEmployeeStatusRequest request,

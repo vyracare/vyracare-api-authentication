@@ -8,6 +8,9 @@ namespace Vyracare.Auth.Features.Auth.ManageEmployees;
 /// </summary>
 public sealed class UpdateEmployeeHandler(IUserRepository repository)
 {
+    /// <summary>
+    /// Valida a solicitacao, preserva a credencial e persiste os campos administrativos permitidos.
+    /// </summary>
     public async Task<UseCaseResult<EmployeeManagementResponse>> HandleAsync(
         string id,
         UpdateEmployeeRequest request,

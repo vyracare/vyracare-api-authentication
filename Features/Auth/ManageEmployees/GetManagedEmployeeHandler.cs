@@ -8,6 +8,9 @@ namespace Vyracare.Auth.Features.Auth.ManageEmployees;
 /// </summary>
 public sealed class GetManagedEmployeeHandler(IUserRepository repository)
 {
+    /// <summary>
+    /// Localiza o funcionario solicitado e remove dados de credencial da resposta.
+    /// </summary>
     public async Task<UseCaseResult<EmployeeManagementResponse>> HandleAsync(string id)
     {
         var user = await repository.GetByIdAsync(id);

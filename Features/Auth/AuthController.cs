@@ -36,6 +36,9 @@ public sealed class AuthController : ControllerBase
 
     [HttpGet("employees/manage")]
     [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Lista funcionarios ativos e inativos para a gestao administrativa.
+    /// </summary>
     public async Task<IActionResult> ListManagedEmployees(
         [FromQuery] string? search,
         [FromQuery] int limit,
@@ -47,6 +50,9 @@ public sealed class AuthController : ControllerBase
 
     [HttpGet("employees/{id}")]
     [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Recupera os dados administrativos editaveis de um funcionario.
+    /// </summary>
     public async Task<IActionResult> GetManagedEmployee(
         string id,
         [FromServices] GetManagedEmployeeHandler handler)
@@ -57,6 +63,9 @@ public sealed class AuthController : ControllerBase
 
     [HttpPost("employees")]
     [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Cadastra um funcionario por meio do fluxo administrativo protegido.
+    /// </summary>
     public async Task<IActionResult> CreateEmployee(
         [FromBody] RegisterRequest request,
         [FromServices] RegisterHandler handler)
@@ -67,6 +76,9 @@ public sealed class AuthController : ControllerBase
 
     [HttpPut("employees/{id}")]
     [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Atualiza dados administrativos sem receber ou substituir a senha.
+    /// </summary>
     public async Task<IActionResult> UpdateEmployee(
         string id,
         [FromBody] UpdateEmployeeRequest request,
@@ -79,6 +91,9 @@ public sealed class AuthController : ControllerBase
 
     [HttpPatch("employees/{id}/status")]
     [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Ativa ou inativa rapidamente um funcionario, preservando a autoprotesao do administrador.
+    /// </summary>
     public async Task<IActionResult> ChangeEmployeeStatus(
         string id,
         [FromBody] ChangeEmployeeStatusRequest request,
