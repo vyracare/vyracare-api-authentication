@@ -21,6 +21,26 @@ public interface IUserRepository
     Task<IReadOnlyCollection<User>> SearchActiveAsync(string? search, int limit);
 
     /// <summary>
+    /// Pesquisa usuarios para a gestao administrativa, incluindo registros inativos.
+    /// </summary>
+    Task<IReadOnlyCollection<User>> SearchAllAsync(string? search, int limit);
+
+    /// <summary>
+    /// Recupera um usuario pelo identificador persistido.
+    /// </summary>
+    Task<User?> GetByIdAsync(string id);
+
+    /// <summary>
+    /// Atualiza os dados cadastrais e de acesso sem alterar a credencial do usuario.
+    /// </summary>
+    Task<bool> UpdateAsync(User user);
+
+    /// <summary>
+    /// Altera somente o status operacional do usuario.
+    /// </summary>
+    Task<bool> SetActiveAsync(string id, bool active);
+
+    /// <summary>
     /// Persiste um novo usuário na base.
     /// </summary>
     /// <param name="user">Entidade de domínio pronta para gravação.</param>

@@ -7,6 +7,8 @@ using Vyracare.Auth.Features.Auth.ForgotPassword;
 using Vyracare.Auth.Features.Auth.Login;
 using Vyracare.Auth.Features.Auth.Register;
 using Vyracare.Auth.Features.Auth.SearchEmployees;
+using Vyracare.Auth.Features.Auth.ManageEmployees;
+using System.Security.Claims;
 
 namespace Vyracare.Auth.Features.Auth;
 
@@ -32,6 +34,61 @@ public sealed class AuthController : ControllerBase
         return this.ToActionResult(result, Ok);
     }
 
+    [HttpGet("employees/manage")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> ListManagedEmployees(
+        [FromQuery] string? search,
+        [FromQuery] int limit,
+        [FromServices] ListManagedEmployeesHandler handler)
+    {
+        var result = await handler.HandleAsync(search, limit);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpGet("employees/{id}")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> GetManagedEmployee(
+        string id,
+        [FromServices] GetManagedEmployeeHandler handler)
+    {
+        var result = await handler.HandleAsync(id);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpPost("employees")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> CreateEmployee(
+        [FromBody] RegisterRequest request,
+        [FromServices] RegisterHandler handler)
+    {
+        var result = await handler.HandleAsync(request);
+        return this.ToActionResult(result, value => CreatedAtAction(nameof(GetManagedEmployee), new { id = value.Id }, new { message = value.Message }));
+    }
+
+    [HttpPut("employees/{id}")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> UpdateEmployee(
+        string id,
+        [FromBody] UpdateEmployeeRequest request,
+        [FromServices] UpdateEmployeeHandler handler)
+    {
+        var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var result = await handler.HandleAsync(id, request, requesterId);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpPatch("employees/{id}/status")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> ChangeEmployeeStatus(
+        string id,
+        [FromBody] ChangeEmployeeStatusRequest request,
+        [FromServices] ChangeEmployeeStatusHandler handler)
+    {
+        var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var result = await handler.HandleAsync(id, request, requesterId);
+        return this.ToActionResult(result, Ok);
+    }
+
     [AllowAnonymous]
     [HttpPost("register")]
     /// <summary>
@@ -45,7 +102,15 @@ public sealed class AuthController : ControllerBase
         [FromBody] RegisterRequest request,
         [FromServices] RegisterHandler handler)
     {
-        var result = await handler.HandleAsync(request);
+        var publicRequest = request with
+        {
+            Role = null,
+            Department = null,
+            Phone = null,
+            AccessLevel = "Leitura",
+            Active = true
+        };
+        var result = await handler.HandleAsync(publicRequest);
         return this.ToActionResult(result, value => CreatedAtAction(nameof(Register), new { id = value.Id }, new { message = value.Message }));
     }
 

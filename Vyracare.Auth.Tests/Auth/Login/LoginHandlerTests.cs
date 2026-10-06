@@ -41,7 +41,8 @@ public sealed class LoginHandlerTests
         {
             Id = "user-1",
             Email = "lenin@vyracare.com",
-            PasswordHash = "hash-123"
+            PasswordHash = "hash-123",
+            Active = true
         });
 
         var handler = new LoginHandler(
@@ -82,6 +83,12 @@ public sealed class LoginHandlerTests
 
         public Task<IReadOnlyCollection<User>> SearchActiveAsync(string? search, int limit) =>
             Task.FromResult<IReadOnlyCollection<User>>(_users.Where(user => user.Active).Take(limit).ToArray());
+
+        public Task<IReadOnlyCollection<User>> SearchAllAsync(string? search, int limit) =>
+            Task.FromResult<IReadOnlyCollection<User>>(_users.Take(limit).ToArray());
+        public Task<User?> GetByIdAsync(string id) => Task.FromResult(_users.FirstOrDefault(user => user.Id == id));
+        public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
+        public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
 
         /// <summary>
         /// Não é usado por estes testes; retorna sempre falso.

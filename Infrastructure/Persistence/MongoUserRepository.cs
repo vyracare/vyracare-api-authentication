@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using MongoDB.Bson;
 using System.Text.RegularExpressions;
 using Vyracare.Auth.Features.Auth.Shared.Domain;
 using Vyracare.Auth.Features.Auth.Shared.Ports;
@@ -65,6 +66,60 @@ public sealed class MongoUserRepository : IUserRepository
     }
 
     /// <summary>
+    /// Pesquisa todos os usuarios para a tela administrativa, preservando o filtro textual seguro.
+    /// </summary>
+    public async Task<IReadOnlyCollection<User>> SearchAllAsync(string? search, int limit)
+    {
+        var filter = BuildSearchFilter(search);
+        var documents = await _collection.Find(filter)
+            .SortBy(item => item.FullName)
+            .Limit(Math.Clamp(limit, 1, 100))
+            .ToListAsync();
+
+        return documents.Select(MapToDomain).ToArray();
+    }
+
+    /// <summary>
+    /// Localiza um usuario pelo ObjectId sem propagar erro para identificadores malformados.
+    /// </summary>
+    public async Task<User?> GetByIdAsync(string id)
+    {
+        if (!ObjectId.TryParse(id, out _)) return null;
+        var document = await _collection.Find(item => item.Id == id).FirstOrDefaultAsync();
+        return document is null ? null : MapToDomain(document);
+    }
+
+    /// <summary>
+    /// Atualiza somente os campos administrativos do usuario e preserva senha e data de criacao.
+    /// </summary>
+    public async Task<bool> UpdateAsync(User user)
+    {
+        if (!ObjectId.TryParse(user.Id, out _)) return false;
+        var update = Builders<UserDocument>.Update
+            .Set(item => item.FullName, user.FullName)
+            .Set(item => item.Email, user.Email)
+            .Set(item => item.Role, user.Role)
+            .Set(item => item.Department, user.Department)
+            .Set(item => item.Phone, user.Phone)
+            .Set(item => item.AccessLevel, user.AccessLevel)
+            .Set(item => item.Active, user.Active);
+        var result = await _collection.UpdateOneAsync(item => item.Id == user.Id, update);
+        return result.MatchedCount > 0;
+    }
+
+    /// <summary>
+    /// Altera isoladamente o status ativo usado pelo login e pelos seletores operacionais.
+    /// </summary>
+    public async Task<bool> SetActiveAsync(string id, bool active)
+    {
+        if (!ObjectId.TryParse(id, out _)) return false;
+        var result = await _collection.UpdateOneAsync(
+            item => item.Id == id,
+            Builders<UserDocument>.Update.Set(item => item.Active, active));
+        return result.MatchedCount > 0;
+    }
+
+    /// <summary>
     /// Insere um novo usuário na collection e devolve a entidade com o identificador persistido.
     /// </summary>
     /// <param name="user">Entidade de domínio pronta para gravação.</param>
@@ -75,6 +130,29 @@ public sealed class MongoUserRepository : IUserRepository
         await _collection.InsertOneAsync(document);
         user.Id = document.Id;
         return user;
+    }
+
+    /// <summary>
+    /// Monta o filtro textual compartilhado pela consulta administrativa.
+    /// </summary>
+    private static FilterDefinition<UserDocument> BuildSearchFilter(string? search)
+    {
+        var normalizedSearch = search?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedSearch))
+        {
+            return Builders<UserDocument>.Filter.Empty;
+        }
+
+        var expression = new BsonRegularExpression(Regex.Escape(normalizedSearch), "i");
+        var digits = Regex.Replace(normalizedSearch, @"\D", string.Empty);
+        var phonePattern = digits.Length > 0
+            ? string.Join(@"\D*", digits.Select(character => Regex.Escape(character.ToString())))
+            : Regex.Escape(normalizedSearch);
+        var phoneExpression = new BsonRegularExpression(phonePattern, "i");
+        return Builders<UserDocument>.Filter.Or(
+            Builders<UserDocument>.Filter.Regex(item => item.FullName, expression),
+            Builders<UserDocument>.Filter.Regex(item => item.Email, expression),
+            Builders<UserDocument>.Filter.Regex(item => item.Phone, phoneExpression));
     }
 
     /// <summary>

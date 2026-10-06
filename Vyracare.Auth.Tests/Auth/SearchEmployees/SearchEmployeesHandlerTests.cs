@@ -32,6 +32,11 @@ public sealed class SearchEmployeesHandlerTests
             return Task.FromResult<IReadOnlyCollection<User>>(users.Where(user => user.Active).Take(limit).ToArray());
         }
 
+        public Task<IReadOnlyCollection<User>> SearchAllAsync(string? search, int limit) => Task.FromResult(users);
+        public Task<User?> GetByIdAsync(string id) => Task.FromResult(users.FirstOrDefault(user => user.Id == id));
+        public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
+        public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
+
         public Task<User?> GetByEmailAsync(string email) => Task.FromResult<User?>(null);
         public Task<User> AddAsync(User user) => Task.FromResult(user);
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);

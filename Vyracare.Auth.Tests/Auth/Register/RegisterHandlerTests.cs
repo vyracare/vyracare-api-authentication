@@ -76,6 +76,12 @@ public sealed class RegisterHandlerTests
         public Task<IReadOnlyCollection<User>> SearchActiveAsync(string? search, int limit) =>
             Task.FromResult<IReadOnlyCollection<User>>(Users.Where(user => user.Active).Take(limit).ToArray());
 
+        public Task<IReadOnlyCollection<User>> SearchAllAsync(string? search, int limit) =>
+            Task.FromResult<IReadOnlyCollection<User>>(Users.Take(limit).ToArray());
+        public Task<User?> GetByIdAsync(string id) => Task.FromResult(Users.FirstOrDefault(user => user.Id == id));
+        public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
+        public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
+
         /// <summary>
         /// Não participa destes cenários de teste; retorna falso por padrão.
         /// </summary>

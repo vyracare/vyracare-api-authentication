@@ -43,7 +43,7 @@ public sealed class LoginHandler
         }
 
         var user = await _userRepository.GetByEmailAsync(request.Email.Trim());
-        if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
+        if (user is null || !user.Active || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
             return UseCaseResult<LoginResponse>.Failure(UseCaseErrorType.Unauthorized, "Invalid credentials");
         }
