@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Vyracare.Auth.Common.Configuration;
+using Vyracare.Auth.Common.Security;
 using Vyracare.Auth.Features.Auth.Shared.Domain;
 using Vyracare.Auth.Features.Auth.Shared.Ports;
 
@@ -63,7 +64,7 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         if (!string.IsNullOrWhiteSpace(user.AccessLevel))
         {
             claims.Add(new Claim(ClaimTypes.Role, user.AccessLevel.Trim()));
-            claims.Add(new Claim("access_level", user.AccessLevel.Trim()));
+            claims.Add(new Claim(JwtClaimNames.AccessLevel, user.AccessLevel.Trim()));
         }
 
         if (!string.IsNullOrWhiteSpace(user.Role))

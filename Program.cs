@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Vyracare.Auth.Common.Configuration;
+using Vyracare.Auth.Common.Security;
 using Vyracare.Auth.Infrastructure;
 using Vyracare.Auth.Infrastructure.DependencyInjection;
 
@@ -44,7 +45,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtOptions.Issuer,
         ValidAudience = jwtOptions.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtOptions.Key))
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtOptions.Key)),
+        RoleClaimType = JwtClaimNames.AccessLevel
     };
 });
 
