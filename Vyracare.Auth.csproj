@@ -20,7 +20,7 @@
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.8.0" />
 
     <!-- MongoDB -->
-    <PackageReference Include="MongoDB.Driver" Version="2.24.0" />
+    <PackageReference Include="MongoDB.Driver" Version="3.12.0" />
 
     <!-- Swagger (opcional) -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
