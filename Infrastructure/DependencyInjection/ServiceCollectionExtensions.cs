@@ -13,6 +13,7 @@ using Vyracare.Auth.Features.Auth.ManageEmployees;
 using Vyracare.Auth.Infrastructure.Persistence;
 using Vyracare.Auth.Infrastructure.Security;
 using Vyracare.Auth.Infrastructure.Time;
+using Vyracare.Auth.Infrastructure.Tenancy;
 
 namespace Vyracare.Auth.Infrastructure.DependencyInjection;
 
@@ -35,6 +36,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
         services.AddScoped<IUserRepository, MongoUserRepository>();
+        services.AddHttpClient<ITenancyProvisioner, HttpTenancyProvisioner>((sp, client) =>
+        {
+            var options = sp.GetRequiredService<IOptions<TenancyApiOptions>>().Value;
+            client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
+        });
 
         services.AddScoped<RegisterHandler>();
         services.AddScoped<LoginHandler>();

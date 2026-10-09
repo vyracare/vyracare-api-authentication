@@ -142,6 +142,23 @@ public sealed class MongoUserRepository : IUserRepository
         return user;
     }
 
+    public async Task<bool> SetTenantAccessAsync(string id, TenantAccess tenantAccess)
+    {
+        if (!ObjectId.TryParse(id, out _)) return false;
+        var document = new TenantAccessDocument
+        {
+            TenantId = tenantAccess.TenantId,
+            MembershipId = tenantAccess.MembershipId,
+            Role = tenantAccess.Role,
+            Status = tenantAccess.Status,
+            TrialStartsAtUtc = tenantAccess.TrialStartsAtUtc,
+            TrialEndsAtUtc = tenantAccess.TrialEndsAtUtc
+        };
+        var result = await _collection.UpdateOneAsync(item => item.Id == id,
+            Builders<UserDocument>.Update.Set(item => item.TenantAccess, document));
+        return result.MatchedCount > 0;
+    }
+
     /// <summary>
     /// Monta o filtro textual compartilhado pela consulta administrativa.
     /// </summary>
@@ -214,7 +231,16 @@ public sealed class MongoUserRepository : IUserRepository
         AccessLevel = user.AccessLevel,
         Active = user.Active,
         PasswordHash = user.PasswordHash ?? string.Empty,
-        CreatedAt = user.CreatedAt
+        CreatedAt = user.CreatedAt,
+        TenantAccess = user.TenantAccess is null ? null : new TenantAccessDocument
+        {
+            TenantId = user.TenantAccess.TenantId,
+            MembershipId = user.TenantAccess.MembershipId,
+            Role = user.TenantAccess.Role,
+            Status = user.TenantAccess.Status,
+            TrialStartsAtUtc = user.TenantAccess.TrialStartsAtUtc,
+            TrialEndsAtUtc = user.TenantAccess.TrialEndsAtUtc
+        }
     };
 
     /// <summary>
@@ -231,6 +257,13 @@ public sealed class MongoUserRepository : IUserRepository
         AccessLevel = document.AccessLevel,
         Active = document.Active,
         PasswordHash = document.PasswordHash,
-        CreatedAt = document.CreatedAt
+        CreatedAt = document.CreatedAt,
+        TenantAccess = document.TenantAccess is null ? null : new TenantAccess(
+            document.TenantAccess.TenantId,
+            document.TenantAccess.MembershipId,
+            document.TenantAccess.Role,
+            document.TenantAccess.Status,
+            document.TenantAccess.TrialStartsAtUtc,
+            document.TenantAccess.TrialEndsAtUtc)
     };
 }

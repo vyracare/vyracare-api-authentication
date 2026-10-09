@@ -131,16 +131,20 @@ public sealed class AuthController : ControllerBase
         [FromBody] RegisterRequest request,
         [FromServices] RegisterHandler handler)
     {
+        if (request.Organization is null || string.IsNullOrWhiteSpace(request.Organization.LegalName))
+        {
+            return BadRequest(new { message = "Organization legal name is required" });
+        }
         var publicRequest = request with
         {
             Role = null,
             Department = null,
             Phone = null,
-            AccessLevel = "Leitura",
+            AccessLevel = "Administrador",
             Active = true
         };
         var result = await handler.HandleAsync(publicRequest);
-        return this.ToActionResult(result, value => CreatedAtAction(nameof(Register), new { id = value.Id }, new { message = value.Message }));
+        return this.ToActionResult(result, value => CreatedAtAction(nameof(Register), new { id = value.Id }, value));
     }
 
     [AllowAnonymous]

@@ -12,15 +12,16 @@ public sealed class PublicRegistrationSecurityTests
     public async Task Deve_ignorar_campos_privilegiados_no_registro_publico()
     {
         var repository = new Repository();
-        var handler = new RegisterHandler(repository, new Hasher(), new Clock());
+        var handler = new RegisterHandler(repository, new Hasher(), new Clock(), new TenancyProvisioner(), new TokenGenerator());
         var controller = new AuthController();
         var request = new RegisterRequest(
-            "publico@vyracare.com", "senha", "Publico", "Administrador", "TI", "11999999999", "Administrador", false);
+            "publico@vyracare.com", "senha", "Publico", "Administrador", "TI", "11999999999", "Administrador", false,
+            new OrganizationRegistration("Clinica Publica", null, null));
 
         await controller.Register(request, handler);
 
         var created = Assert.Single(repository.Users);
-        Assert.Equal("Leitura", created.AccessLevel);
+        Assert.Equal("Administrador", created.AccessLevel);
         Assert.True(created.Active);
         Assert.Null(created.Role);
         Assert.Null(created.Department);
@@ -42,7 +43,7 @@ public sealed class PublicRegistrationSecurityTests
         }
         public Task<bool> UpdateAsync(User user) => Task.FromResult(true);
         public Task<bool> SetActiveAsync(string id, bool active) => Task.FromResult(true);
-        public Task<bool> DeleteAsync(string id) => Task.FromResult(false);
+        public Task<bool> DeleteAsync(string id) => Task.FromResult(Users.RemoveAll(user => user.Id == id) > 0);
         public Task<bool> SetPasswordIfEmptyAsync(string email, string passwordHash) => Task.FromResult(false);
         public Task<bool> UpdatePasswordAsync(string email, string passwordHash) => Task.FromResult(false);
     }
@@ -56,5 +57,17 @@ public sealed class PublicRegistrationSecurityTests
     private sealed class Clock : IClock
     {
         public DateTime UtcNow => new(2026, 10, 6, 0, 0, 0, DateTimeKind.Utc);
+    }
+
+    private sealed class TenancyProvisioner : ITenancyProvisioner
+    {
+        public Task<TenantAccess> ProvisionOwnerAsync(string userId, OrganizationRegistration organization, string idempotencyKey) =>
+            Task.FromResult(new TenantAccess("tenant-a", "membership-a", "Owner", "Trialing", DateTime.UtcNow, DateTime.UtcNow.AddDays(30)));
+        public Task CompensateOwnerAsync(string tenantId, string userId) => Task.CompletedTask;
+    }
+
+    private sealed class TokenGenerator : IJwtTokenGenerator
+    {
+        public string Generate(User user) => "token";
     }
 }

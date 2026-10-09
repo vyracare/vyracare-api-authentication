@@ -27,7 +27,10 @@ public sealed class JwtTokenGeneratorTests
             Email = "admin@vyracare.com",
             FullName = "Admin Vyracare",
             AccessLevel = "Administrador",
-            Role = "Clinico"
+            Role = "Clinico",
+            TenantAccess = new TenantAccess(
+                "tenant-1", "membership-1", "Owner", "Trialing",
+                DateTime.UtcNow, DateTime.UtcNow.AddDays(30))
         });
 
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -35,5 +38,9 @@ public sealed class JwtTokenGeneratorTests
         Assert.Contains(jwt.Claims, claim => claim.Type == ClaimTypes.Role && claim.Value == "Administrador");
         Assert.Contains(jwt.Claims, claim => claim.Type == "access_level" && claim.Value == "Administrador");
         Assert.Contains(jwt.Claims, claim => claim.Type == "job_role" && claim.Value == "Clinico");
+        Assert.Contains(jwt.Claims, claim => claim.Type == "tenant_id" && claim.Value == "tenant-1");
+        Assert.Contains(jwt.Claims, claim => claim.Type == "membership_id" && claim.Value == "membership-1");
+        Assert.Contains(jwt.Claims, claim => claim.Type == "tenant_role" && claim.Value == "Owner");
+        Assert.Contains(jwt.Claims, claim => claim.Type == "plan" && claim.Value == "trial");
     }
 }

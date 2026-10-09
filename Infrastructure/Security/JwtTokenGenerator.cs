@@ -72,6 +72,15 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
             claims.Add(new Claim("job_role", user.Role.Trim()));
         }
 
+        if (user.TenantAccess is not null)
+        {
+            claims.Add(new Claim(JwtClaimNames.TenantId, user.TenantAccess.TenantId));
+            claims.Add(new Claim(JwtClaimNames.MembershipId, user.TenantAccess.MembershipId));
+            claims.Add(new Claim(JwtClaimNames.TenantRole, user.TenantAccess.Role));
+            claims.Add(new Claim(JwtClaimNames.Plan,
+                string.Equals(user.TenantAccess.Status, "Trialing", StringComparison.OrdinalIgnoreCase) ? "trial" : "active"));
+        }
+
         var credentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key)),
             SecurityAlgorithms.HmacSha256);

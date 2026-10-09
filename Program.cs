@@ -15,6 +15,7 @@ var configuration = builder.Configuration;
 builder.Services.Configure<MongoOptions>(configuration.GetSection(MongoOptions.SectionName));
 builder.Services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<CorsOptions>(configuration.GetSection(CorsOptions.SectionName));
+builder.Services.Configure<TenancyApiOptions>(configuration.GetSection(TenancyApiOptions.SectionName));
 
 builder.Services.AddMongo();
 builder.Services.AddAuthCore();

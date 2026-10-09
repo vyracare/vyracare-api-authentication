@@ -52,6 +52,9 @@ public interface IUserRepository
     /// <returns>A própria entidade com eventuais ajustes feitos pelo repositório, como o identificador.</returns>
     Task<User> AddAsync(User user);
 
+    /// <summary>Atualiza a projecao de acesso ao tenant depois do provisionamento.</summary>
+    Task<bool> SetTenantAccessAsync(string id, TenantAccess tenantAccess) => Task.FromResult(false);
+
     /// <summary>
     /// Define a senha do usuário somente se ele ainda não possuir um hash persistido.
     /// Esse método protege o fluxo de primeiro acesso contra sobrescrita indevida.

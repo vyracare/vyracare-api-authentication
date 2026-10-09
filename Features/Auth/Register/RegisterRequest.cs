@@ -20,5 +20,8 @@ public sealed record RegisterRequest(
     string? Department,
     string? Phone,
     string? AccessLevel,
-    bool? Active
+    bool? Active,
+    OrganizationRegistration? Organization = null
 );
+
+public sealed record OrganizationRegistration(string LegalName, string? TradeName, string? Document);
