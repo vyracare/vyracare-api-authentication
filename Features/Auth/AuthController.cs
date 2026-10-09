@@ -10,6 +10,8 @@ using Vyracare.Auth.Features.Auth.SearchEmployees;
 using Vyracare.Auth.Features.Auth.ManageEmployees;
 using System.Security.Claims;
 using Vyracare.Auth.Features.Auth.CreateOrganization;
+using Vyracare.Auth.Features.Auth.CreateEmployee;
+using Vyracare.Auth.Common.Security;
 
 namespace Vyracare.Auth.Features.Auth;
 
@@ -79,9 +81,10 @@ public sealed class AuthController : ControllerBase
     /// </summary>
     public async Task<IActionResult> CreateEmployee(
         [FromBody] RegisterRequest request,
-        [FromServices] RegisterHandler handler)
+        [FromServices] CreateEmployeeHandler handler)
     {
-        var result = await handler.HandleAsync(request);
+        var tenantId = User.FindFirstValue(JwtClaimNames.TenantId) ?? string.Empty;
+        var result = await handler.HandleAsync(tenantId, request);
         return this.ToActionResult(result, value => CreatedAtAction(nameof(GetManagedEmployee), new { id = value.Id }, new { message = value.Message }));
     }
 

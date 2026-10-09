@@ -13,6 +13,7 @@ public sealed class LoginHandler
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly ITenancyProvisioner? _tenancy;
 
     /// <summary>
     /// Inicializa uma nova instância do handler de login com as dependências necessárias
@@ -21,11 +22,13 @@ public sealed class LoginHandler
     public LoginHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
-        IJwtTokenGenerator jwtTokenGenerator)
+        IJwtTokenGenerator jwtTokenGenerator,
+        ITenancyProvisioner? tenancy = null)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenGenerator = jwtTokenGenerator;
+        _tenancy = tenancy;
     }
 
     /// <summary>
@@ -47,6 +50,23 @@ public sealed class LoginHandler
             !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
             return UseCaseResult<LoginResponse>.Failure(UseCaseErrorType.Unauthorized, "Invalid credentials");
+        }
+
+        if (user.TenantAccess is null && !string.IsNullOrWhiteSpace(user.Id) && _tenancy is not null)
+        {
+            try
+            {
+                var memberships = await _tenancy.GetMembershipsAsync(user.Id);
+                if (memberships.Count == 1)
+                {
+                    user.TenantAccess = memberships.Single();
+                    await _userRepository.SetTenantAccessAsync(user.Id, user.TenantAccess);
+                }
+            }
+            catch
+            {
+                // O login legado continua valido; o shell conduz a recuperacao quando nao houver tenant.
+            }
         }
 
         var token = _jwtTokenGenerator.Generate(user);
