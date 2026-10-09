@@ -9,6 +9,7 @@ using Vyracare.Auth.Features.Auth.Register;
 using Vyracare.Auth.Features.Auth.SearchEmployees;
 using Vyracare.Auth.Features.Auth.ManageEmployees;
 using System.Security.Claims;
+using Vyracare.Auth.Features.Auth.CreateOrganization;
 
 namespace Vyracare.Auth.Features.Auth;
 
@@ -21,6 +22,16 @@ namespace Vyracare.Auth.Features.Auth;
 /// </summary>
 public sealed class AuthController : ControllerBase
 {
+    [HttpPost("organization")]
+    public async Task<IActionResult> CreateOrganization(
+        [FromBody] CreateOrganizationRequest request,
+        [FromServices] CreateOrganizationHandler handler)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? string.Empty;
+        var result = await handler.HandleAsync(userId, request);
+        return this.ToActionResult(result, Ok);
+    }
+
     [HttpGet("employees")]
     /// <summary>
     /// Pesquisa funcionarios ativos por nome, e-mail ou telefone para uso em seletores.

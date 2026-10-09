@@ -14,6 +14,7 @@ using Vyracare.Auth.Infrastructure.Persistence;
 using Vyracare.Auth.Infrastructure.Security;
 using Vyracare.Auth.Infrastructure.Time;
 using Vyracare.Auth.Infrastructure.Tenancy;
+using Vyracare.Auth.Features.Auth.CreateOrganization;
 
 namespace Vyracare.Auth.Infrastructure.DependencyInjection;
 
@@ -43,6 +44,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddScoped<RegisterHandler>();
+        services.AddScoped<CreateOrganizationHandler>();
         services.AddScoped<LoginHandler>();
         services.AddScoped<FirstAccessCheckHandler>();
         services.AddScoped<FirstAccessSetPasswordHandler>();
