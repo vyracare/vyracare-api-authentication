@@ -6,11 +6,16 @@ using Vyracare.Auth.Features.Auth.FirstAccessCheck;
 using Vyracare.Auth.Features.Auth.FirstAccessSetPassword;
 using Vyracare.Auth.Features.Auth.ForgotPassword;
 using Vyracare.Auth.Features.Auth.Login;
+using Vyracare.Auth.Features.Auth.SearchEmployees;
 using Vyracare.Auth.Features.Auth.Register;
 using Vyracare.Auth.Features.Auth.Shared.Ports;
+using Vyracare.Auth.Features.Auth.ManageEmployees;
 using Vyracare.Auth.Infrastructure.Persistence;
 using Vyracare.Auth.Infrastructure.Security;
 using Vyracare.Auth.Infrastructure.Time;
+using Vyracare.Auth.Infrastructure.Tenancy;
+using Vyracare.Auth.Features.Auth.CreateOrganization;
+using Vyracare.Auth.Features.Auth.CreateEmployee;
 
 namespace Vyracare.Auth.Infrastructure.DependencyInjection;
 
@@ -33,12 +38,25 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
         services.AddScoped<IUserRepository, MongoUserRepository>();
+        services.AddHttpClient<ITenancyProvisioner, HttpTenancyProvisioner>((sp, client) =>
+        {
+            var options = sp.GetRequiredService<IOptions<TenancyApiOptions>>().Value;
+            client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
+        });
 
         services.AddScoped<RegisterHandler>();
+        services.AddScoped<CreateOrganizationHandler>();
+        services.AddScoped<CreateEmployeeHandler>();
         services.AddScoped<LoginHandler>();
         services.AddScoped<FirstAccessCheckHandler>();
         services.AddScoped<FirstAccessSetPasswordHandler>();
         services.AddScoped<ForgotPasswordHandler>();
+        services.AddScoped<SearchEmployeesHandler>();
+        services.AddScoped<ListManagedEmployeesHandler>();
+        services.AddScoped<GetManagedEmployeeHandler>();
+        services.AddScoped<UpdateEmployeeHandler>();
+        services.AddScoped<ChangeEmployeeStatusHandler>();
+        services.AddScoped<DeleteEmployeeHandler>();
 
         return services;
     }

@@ -12,6 +12,11 @@ Esta API concentra os fluxos de autenticacao da plataforma Vyracare:
 
 Ela foi organizada em um modelo de `vertical slice`, ou seja, cada caso de uso fica agrupado por feature, em vez de espalhado em pastas globais como `Controllers`, `Services`, `Models` e `DTOs`.
 
+Runtime atual da aplicacao:
+
+- `TargetFramework`: `net10.0`
+- runtime AWS Lambda: `dotnet10`
+
 ---
 
 ## Como ler este projeto pela primeira vez
@@ -276,6 +281,7 @@ O workflow de publicacao esta em [.github/workflows/publish.yml](C:/Users/lenin/
 Regra atual:
 
 - `push` em `develop` publica em `dev`
+- `push` em `release/*` publica em `hml`
 - `push` em `main` publica em `prod`
 
 ### Recursos AWS da autenticacao
@@ -298,14 +304,21 @@ Em `develop`:
 - Lambda com sufixo `-dev`
 - API Gateway com sufixo `-dev`
 - banco `vyracare_db_dev`
-- secrets `*-dev`
+- parametros `*-dev`
+
+Em `release/*`:
+
+- Lambda com sufixo `-hml`
+- API Gateway com sufixo `-hml`
+- banco `vyracare_db_hml`
+- parametros `*-hml`
 
 Em `main`:
 
 - Lambda sem sufixo
 - API Gateway sem sufixo
 - banco `vyracare_db`
-- secrets `*-prod`
+- parametros `*-prod`
 
 ---
 

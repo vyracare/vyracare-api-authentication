@@ -13,15 +13,24 @@ public sealed class RegisterHandler
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IClock _clock;
+    private readonly ITenancyProvisioner? _tenancyProvisioner;
+    private readonly IJwtTokenGenerator? _jwtTokenGenerator;
 
     /// <summary>
     /// Inicializa uma nova instância do handler de registro.
     /// </summary>
-    public RegisterHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IClock clock)
+    public RegisterHandler(
+        IUserRepository userRepository,
+        IPasswordHasher passwordHasher,
+        IClock clock,
+        ITenancyProvisioner? tenancyProvisioner = null,
+        IJwtTokenGenerator? jwtTokenGenerator = null)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _clock = clock;
+        _tenancyProvisioner = tenancyProvisioner;
+        _jwtTokenGenerator = jwtTokenGenerator;
     }
 
     /// <summary>
@@ -60,6 +69,46 @@ public sealed class RegisterHandler
         };
 
         var created = await _userRepository.AddAsync(user);
-        return UseCaseResult<RegisterResponse>.Success(new RegisterResponse(created.Id ?? string.Empty, "User created"));
+        if (request.Organization is null)
+        {
+            return UseCaseResult<RegisterResponse>.Success(new RegisterResponse(created.Id ?? string.Empty, "User created"));
+        }
+
+        if (_tenancyProvisioner is null || _jwtTokenGenerator is null || string.IsNullOrWhiteSpace(created.Id))
+        {
+            await _userRepository.DeleteAsync(created.Id ?? string.Empty);
+            return UseCaseResult<RegisterResponse>.Failure(UseCaseErrorType.Unavailable, "Tenant provisioning is unavailable");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Organization.LegalName))
+        {
+            await _userRepository.DeleteAsync(created.Id);
+            return UseCaseResult<RegisterResponse>.Failure(UseCaseErrorType.Validation, "Organization legal name is required");
+        }
+
+        Shared.Domain.TenantAccess? tenantAccess = null;
+        try
+        {
+            tenantAccess = await _tenancyProvisioner.ProvisionOwnerAsync(
+                created.Id,
+                request.Organization,
+                $"owner-registration:{created.Id}");
+            created.TenantAccess = tenantAccess;
+            await _userRepository.SetTenantAccessAsync(created.Id, tenantAccess);
+            var token = _jwtTokenGenerator.Generate(created);
+            return UseCaseResult<RegisterResponse>.Success(new RegisterResponse(
+                created.Id, "User and organization created", token, tenantAccess.TenantId,
+                tenantAccess.MembershipId, tenantAccess.TrialEndsAtUtc));
+        }
+        catch
+        {
+            if (tenantAccess is not null)
+            {
+                try { await _tenancyProvisioner.CompensateOwnerAsync(tenantAccess.TenantId, created.Id); }
+                catch { /* A reconciliacao operacional trata compensacoes indisponiveis. */ }
+            }
+            await _userRepository.DeleteAsync(created.Id);
+            return UseCaseResult<RegisterResponse>.Failure(UseCaseErrorType.Unavailable, "Tenant provisioning failed");
+        }
     }
 }

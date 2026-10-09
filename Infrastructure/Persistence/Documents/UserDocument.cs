@@ -70,4 +70,17 @@ public sealed class UserDocument
     /// Obtém ou define a data de criação do documento em UTC.
     /// </summary>
     public DateTime CreatedAt { get; set; }
+
+    [BsonElement("tenantAccess")]
+    public TenantAccessDocument? TenantAccess { get; set; }
+}
+
+public sealed class TenantAccessDocument
+{
+    [BsonElement("tenantId")] public string TenantId { get; set; } = string.Empty;
+    [BsonElement("membershipId")] public string MembershipId { get; set; } = string.Empty;
+    [BsonElement("role")] public string Role { get; set; } = string.Empty;
+    [BsonElement("status")] public string Status { get; set; } = string.Empty;
+    [BsonElement("trialStartsAtUtc")] public DateTime TrialStartsAtUtc { get; set; }
+    [BsonElement("trialEndsAtUtc")] public DateTime TrialEndsAtUtc { get; set; }
 }

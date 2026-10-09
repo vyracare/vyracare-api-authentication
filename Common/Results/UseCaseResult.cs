@@ -10,7 +10,8 @@ public enum UseCaseErrorType
     Validation,
     Conflict,
     NotFound,
-    Unauthorized
+    Unauthorized,
+    Unavailable
 }
 
 /// <summary>

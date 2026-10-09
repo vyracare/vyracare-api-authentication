@@ -6,6 +6,12 @@ using Vyracare.Auth.Features.Auth.FirstAccessSetPassword;
 using Vyracare.Auth.Features.Auth.ForgotPassword;
 using Vyracare.Auth.Features.Auth.Login;
 using Vyracare.Auth.Features.Auth.Register;
+using Vyracare.Auth.Features.Auth.SearchEmployees;
+using Vyracare.Auth.Features.Auth.ManageEmployees;
+using System.Security.Claims;
+using Vyracare.Auth.Features.Auth.CreateOrganization;
+using Vyracare.Auth.Features.Auth.CreateEmployee;
+using Vyracare.Auth.Common.Security;
 
 namespace Vyracare.Auth.Features.Auth;
 
@@ -18,6 +24,114 @@ namespace Vyracare.Auth.Features.Auth;
 /// </summary>
 public sealed class AuthController : ControllerBase
 {
+    [HttpPost("organization")]
+    public async Task<IActionResult> CreateOrganization(
+        [FromBody] CreateOrganizationRequest request,
+        [FromServices] CreateOrganizationHandler handler)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? string.Empty;
+        var result = await handler.HandleAsync(userId, request);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpGet("employees")]
+    /// <summary>
+    /// Pesquisa funcionarios ativos por nome, e-mail ou telefone para uso em seletores.
+    /// </summary>
+    public async Task<IActionResult> SearchEmployees(
+        [FromQuery] string? search,
+        [FromQuery] int limit,
+        [FromServices] SearchEmployeesHandler handler)
+    {
+        var result = await handler.HandleAsync(search, limit);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpGet("employees/manage")]
+    [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Lista funcionarios ativos e inativos para a gestao administrativa.
+    /// </summary>
+    public async Task<IActionResult> ListManagedEmployees(
+        [FromQuery] string? search,
+        [FromQuery] int limit,
+        [FromServices] ListManagedEmployeesHandler handler)
+    {
+        var result = await handler.HandleAsync(search, limit);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpGet("employees/{id}")]
+    [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Recupera os dados administrativos editaveis de um funcionario.
+    /// </summary>
+    public async Task<IActionResult> GetManagedEmployee(
+        string id,
+        [FromServices] GetManagedEmployeeHandler handler)
+    {
+        var result = await handler.HandleAsync(id);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpPost("employees")]
+    [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Cadastra um funcionario por meio do fluxo administrativo protegido.
+    /// </summary>
+    public async Task<IActionResult> CreateEmployee(
+        [FromBody] RegisterRequest request,
+        [FromServices] CreateEmployeeHandler handler)
+    {
+        var tenantId = User.FindFirstValue(JwtClaimNames.TenantId) ?? string.Empty;
+        var result = await handler.HandleAsync(tenantId, request);
+        return this.ToActionResult(result, value => CreatedAtAction(nameof(GetManagedEmployee), new { id = value.Id }, new { message = value.Message }));
+    }
+
+    [HttpPut("employees/{id}")]
+    [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Atualiza dados administrativos sem receber ou substituir a senha.
+    /// </summary>
+    public async Task<IActionResult> UpdateEmployee(
+        string id,
+        [FromBody] UpdateEmployeeRequest request,
+        [FromServices] UpdateEmployeeHandler handler)
+    {
+        var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var result = await handler.HandleAsync(id, request, requesterId);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpPatch("employees/{id}/status")]
+    [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Ativa ou inativa rapidamente um funcionario, preservando a autoprotesao do administrador.
+    /// </summary>
+    public async Task<IActionResult> ChangeEmployeeStatus(
+        string id,
+        [FromBody] ChangeEmployeeStatusRequest request,
+        [FromServices] ChangeEmployeeStatusHandler handler)
+    {
+        var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var result = await handler.HandleAsync(id, request, requesterId);
+        return this.ToActionResult(result, Ok);
+    }
+
+    [HttpDelete("employees/{id}")]
+    [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Exclui definitivamente um funcionário e impede que o administrador remova o próprio usuário.
+    /// </summary>
+    public async Task<IActionResult> DeleteEmployee(
+        string id,
+        [FromServices] DeleteEmployeeHandler handler)
+    {
+        var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var result = await handler.HandleAsync(id, requesterId);
+        return this.ToActionResult(result, _ => NoContent());
+    }
+
     [AllowAnonymous]
     [HttpPost("register")]
     /// <summary>
@@ -31,8 +145,20 @@ public sealed class AuthController : ControllerBase
         [FromBody] RegisterRequest request,
         [FromServices] RegisterHandler handler)
     {
-        var result = await handler.HandleAsync(request);
-        return this.ToActionResult(result, value => CreatedAtAction(nameof(Register), new { id = value.Id }, new { message = value.Message }));
+        if (request.Organization is null || string.IsNullOrWhiteSpace(request.Organization.LegalName))
+        {
+            return BadRequest(new { message = "Organization legal name is required" });
+        }
+        var publicRequest = request with
+        {
+            Role = null,
+            Department = null,
+            Phone = null,
+            AccessLevel = "Administrador",
+            Active = true
+        };
+        var result = await handler.HandleAsync(publicRequest);
+        return this.ToActionResult(result, value => CreatedAtAction(nameof(Register), new { id = value.Id }, value));
     }
 
     [AllowAnonymous]

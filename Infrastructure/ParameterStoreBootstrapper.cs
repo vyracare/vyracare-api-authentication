@@ -39,6 +39,15 @@ public static class ParameterStoreBootstrapper
             targetConfigurationKey: "Jwt:Key",
             parameterPropertyName: "Key");
 
+        await TryAddParameterValueAsync(
+            configuration,
+            overrides,
+            parameterNameConfigKeys: ["Parameters:TenancyInternalApiKeyParameterName"],
+            parameterNameEnvironmentVariables: ["TENANCY_INTERNAL_API_KEY_PARAMETER_NAME"],
+            fallbackEnvironmentVariable: "TENANCY_INTERNAL_API_KEY",
+            targetConfigurationKey: "TenancyApi:InternalApiKey",
+            parameterPropertyName: "Key");
+
         if (overrides.Count > 0)
         {
             configuration.AddInMemoryCollection(overrides);
@@ -59,9 +68,15 @@ public static class ParameterStoreBootstrapper
         string targetConfigurationKey,
         string parameterPropertyName)
     {
-        if (!string.IsNullOrWhiteSpace(configuration[targetConfigurationKey]) ||
-            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(fallbackEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(configuration[targetConfigurationKey]))
         {
+            return;
+        }
+
+        var fallbackValue = Environment.GetEnvironmentVariable(fallbackEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(fallbackValue))
+        {
+            overrides[targetConfigurationKey] = fallbackValue;
             return;
         }
 

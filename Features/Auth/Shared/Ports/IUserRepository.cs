@@ -16,11 +16,44 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email);
 
     /// <summary>
+    /// Pesquisa usuarios ativos por nome, e-mail ou telefone para selecao operacional.
+    /// </summary>
+    Task<IReadOnlyCollection<User>> SearchActiveAsync(string? search, int limit);
+
+    /// <summary>
+    /// Pesquisa usuarios para a gestao administrativa, incluindo registros inativos.
+    /// </summary>
+    Task<IReadOnlyCollection<User>> SearchAllAsync(string? search, int limit);
+
+    /// <summary>
+    /// Recupera um usuario pelo identificador persistido.
+    /// </summary>
+    Task<User?> GetByIdAsync(string id);
+
+    /// <summary>
+    /// Atualiza os dados cadastrais e de acesso sem alterar a credencial do usuario.
+    /// </summary>
+    Task<bool> UpdateAsync(User user);
+
+    /// <summary>
+    /// Altera somente o status operacional do usuario.
+    /// </summary>
+    Task<bool> SetActiveAsync(string id, bool active);
+
+    /// <summary>
+    /// Exclui definitivamente o usuário identificado.
+    /// </summary>
+    Task<bool> DeleteAsync(string id);
+
+    /// <summary>
     /// Persiste um novo usuário na base.
     /// </summary>
     /// <param name="user">Entidade de domínio pronta para gravação.</param>
     /// <returns>A própria entidade com eventuais ajustes feitos pelo repositório, como o identificador.</returns>
     Task<User> AddAsync(User user);
+
+    /// <summary>Atualiza a projecao de acesso ao tenant depois do provisionamento.</summary>
+    Task<bool> SetTenantAccessAsync(string id, TenantAccess tenantAccess) => Task.FromResult(false);
 
     /// <summary>
     /// Define a senha do usuário somente se ele ainda não possuir um hash persistido.

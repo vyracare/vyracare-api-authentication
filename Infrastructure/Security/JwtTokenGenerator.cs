@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Vyracare.Auth.Common.Configuration;
+using Vyracare.Auth.Common.Security;
 using Vyracare.Auth.Features.Auth.Shared.Domain;
 using Vyracare.Auth.Features.Auth.Shared.Ports;
 
@@ -58,6 +59,26 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         if (!string.IsNullOrWhiteSpace(user.FullName))
         {
             claims.Add(new Claim(JwtRegisteredClaimNames.Name, user.FullName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.AccessLevel))
+        {
+            claims.Add(new Claim(ClaimTypes.Role, user.AccessLevel.Trim()));
+            claims.Add(new Claim(JwtClaimNames.AccessLevel, user.AccessLevel.Trim()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.Role))
+        {
+            claims.Add(new Claim("job_role", user.Role.Trim()));
+        }
+
+        if (user.TenantAccess is not null)
+        {
+            claims.Add(new Claim(JwtClaimNames.TenantId, user.TenantAccess.TenantId));
+            claims.Add(new Claim(JwtClaimNames.MembershipId, user.TenantAccess.MembershipId));
+            claims.Add(new Claim(JwtClaimNames.TenantRole, user.TenantAccess.Role));
+            claims.Add(new Claim(JwtClaimNames.Plan,
+                string.Equals(user.TenantAccess.Status, "Trialing", StringComparison.OrdinalIgnoreCase) ? "trial" : "active"));
         }
 
         var credentials = new SigningCredentials(
