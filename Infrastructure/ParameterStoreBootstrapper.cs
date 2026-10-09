@@ -68,9 +68,15 @@ public static class ParameterStoreBootstrapper
         string targetConfigurationKey,
         string parameterPropertyName)
     {
-        if (!string.IsNullOrWhiteSpace(configuration[targetConfigurationKey]) ||
-            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(fallbackEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(configuration[targetConfigurationKey]))
         {
+            return;
+        }
+
+        var fallbackValue = Environment.GetEnvironmentVariable(fallbackEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(fallbackValue))
+        {
+            overrides[targetConfigurationKey] = fallbackValue;
             return;
         }
 
