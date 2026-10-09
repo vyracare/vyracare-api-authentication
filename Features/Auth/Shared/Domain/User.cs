@@ -58,4 +58,7 @@ public sealed class User
     /// Obtém ou define a data de criação do usuário em UTC.
     /// </summary>
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>Projecao do tenant padrao usada na emissao do token.</summary>
+    public TenantAccess? TenantAccess { get; set; }
 }
